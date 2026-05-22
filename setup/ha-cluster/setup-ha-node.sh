@@ -97,8 +97,8 @@ tls-san:
 $(printf '%b' "$TLS_SAN")
 
 etcd-arg:
-  - "heartbeat-interval=300" 
-  - "election-timeout=3000" 
+  - "heartbeat-interval=100" 
+  - "election-timeout=1000" 
   - "peer-dial-timeout=3s"
 EOF
 

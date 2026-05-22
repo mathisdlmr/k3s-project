@@ -87,8 +87,8 @@ tls-san:
 $(printf '%b' "$TLS_SAN")
 
 etcd-arg:
-  - "heartbeat-interval=300" 
-  - "election-timeout=3000" 
+  - "heartbeat-interval=100" 
+  - "election-timeout=1000" 
   - "peer-dial-timeout=3s"
 
 etcd-snapshot-schedule-cron: "0 */6 * * *"
@@ -140,9 +140,14 @@ cilium install \
   --set k8sServicePort=6443 \
   --set routingMode=tunnel \
   --set tunnelProtocol=vxlan \
-  --set mtu=1200 \
   --set hubble.relay.enabled=true \
   --set hubble.ui.enabled=true
+
+# --set mtu=1200 has no effect in Cilium 1.19.1 (not rendered in ConfigMap).
+# Pod MTU must be set manually: tailscale0=1200, vxlan overhead=50 → pod MTU=1150.
+# bpf-lb-sock enables socket-level LB (reduces hairpin NAT impact for local backends).
+kubectl patch configmap cilium-config -n kube-system --patch '{"data":{"mtu":"1150","bpf-lb-sock":"true"}}'
+kubectl rollout restart daemonset/cilium -n kube-system
 
 echo "Attente que Cilium soit prêt..."
 cilium status --wait
@@ -172,7 +177,7 @@ kubectl apply -f ./bootstrap-app.yaml
 echo ""
 echo "[7] Configuration du PC..."
 echo "======================================================"
-echo "Setup du cluster OK. Lancer setup-haproxy.sh sur votre PC avec :"
-echo "   ./setup-haproxy.sh --master-ips ${MASTER_IPS[@]} --master-names ${MASTER_NAMES[@]}"
+echo "Setup du cluster OK. Lancer setup-local-computer.sh sur votre PC avec :"
+echo "   ./setup-local-computer.sh --master-ips ${MASTER_IPS[@]} --master-names ${MASTER_NAMES[@]}"
 echo "======================================================"
 echo "Puis accéder à ArgoCD via : kubectl port-forward svc/argocd-server -n argocd 8080:443"

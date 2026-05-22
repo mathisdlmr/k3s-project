@@ -45,7 +45,10 @@ sudo dpkg-reconfigure -f noninteractive unattended-upgrades
 # ---------------------------
 echo "[5/8] Installing Tailscale..."
 curl -fsSL https://tailscale.com/install.sh | sh
-sudo echo 'TS_DEBUG_ALWAYS_USE_DERP=true' >> /etc/default/tailscaled
+
+# Add this line if to enable DERP fallback if huge package loss between nodes observed
+# sudo echo 'TS_DEBUG_ALWAYS_USE_DERP=true' >> /etc/default/tailscaled
+
 sudo systemctl enable --now tailscaled
 read -p "Appuyer sur entrée une fois la connexion Tailscale établie..."
 
