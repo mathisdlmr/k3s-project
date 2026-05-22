@@ -7,6 +7,6 @@
   ],
   "argocd": {
     "enabled": true,
-    "managerFilePatterns": ["**/apps-*.yaml"]
+    "managerFilePatterns": ["**/*-app.yaml"]
   }
 }
