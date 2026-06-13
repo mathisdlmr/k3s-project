@@ -14,9 +14,6 @@ spec:
       namespace: skiut
       server: "*"
     - name: "*"
-      namespace: pic
-      server: "*"
-    - name: "*"
       namespace: website
       server: "*"
     - name: "*"
