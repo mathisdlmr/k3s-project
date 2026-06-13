@@ -16,7 +16,7 @@ spec:
       ref: k3s-project
     - repoURL: https://grafana.github.io/helm-charts
       chart: alloy
-      targetRevision: 1.6.2
+      targetRevision: 1.10.0
       helm:
         valueFiles:
           - $k3s-project/valueFiles/alloy.yaml
