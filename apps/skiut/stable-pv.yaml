@@ -9,14 +9,6 @@ spec:
     storage: 64Gi
   accessModes:
     - ReadWriteOnce
-  storageClassName: ""
+  storageClassName: "skiut"
   local:
     path: /var/skiut-stable-pv
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-        - matchExpressions:
-            - key: node.lifecycle
-              operator: In
-              values:
-                - stable
