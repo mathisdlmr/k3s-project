@@ -15,7 +15,7 @@ spec:
   resources:
     requests:
       storage: 32Gi
-  storageClassName: ""
+  storageClassName: "skiut"
   selector:
     matchLabels:
       app: skiut
