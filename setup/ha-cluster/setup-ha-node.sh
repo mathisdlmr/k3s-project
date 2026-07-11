@@ -1,8 +1,10 @@
 #!/bin/bash
-# setup-ha.sh
-# À lancer sur les masters SUIVANTS (pas le nœud init)
-# Usage : ./setup-ha.sh --token=<TOKEN>
+
 set -euo pipefail
+
+echo "Setup another (not the 1st) control-plane node for a HA K3S cluster"
+echo "This script must be run once the first control-plane node is setup and running"
+echo "This script was wrote for a ubuntu 24.04 LTS server"
 
 TOKEN=""
 INIT_NODE_IP=""
@@ -23,7 +25,7 @@ fi
 # ---------------------------
 # Collecte des paramètres
 # ---------------------------
-read -p "Nom de CE nœud : " NODE_NAME
+read -p "Nom de ce noeud : " NODE_NAME
 
 echo ""
 echo "=== Tailscale peers ==="
@@ -31,10 +33,10 @@ tailscale status
 echo "========================"
 echo ""
 
-read -p "Nombre de nœuds control-plane au total : " NUM_MASTERS
+read -p "Nombre de noeuds control-plane au total : " NUM_MASTERS
 
-declare -a MASTER_IPS
-declare -a MASTER_NAMES
+MASTER_IPS=()
+MASTER_NAMES=()
 for i in $(seq 1 "$NUM_MASTERS"); do
   read -p "IP Tailscale du $i-e control-plane : " ip
   read -p "Nom du $i-e control-plane (ex: 5700u) : " name
@@ -43,36 +45,25 @@ for i in $(seq 1 "$NUM_MASTERS"); do
 done
 
 # ---------------------------
-# 0. Préparation du nœud
-# ---------------------------
-sudo swapoff -a
-sudo sed -i '/ swap / s/^/#/' /etc/fstab
-
-sudo modprobe br_netfilter
-sudo modprobe overlay
-
-cat << EOF | sudo tee /etc/sysctl.d/k8s.conf
-net.bridge.bridge-nf-call-iptables = 1
-net.ipv4.ip_forward = 1
-EOF
-sudo sysctl --system
-
-# ---------------------------
 # 1. Récupération de l'IP Tailscale
 # ---------------------------
+echo ""
+echo "[1] Récupération de l'IP Tailscale..."
 TAILSCALE_IP=$(tailscale ip -4)
-echo "IP Tailscale de CE nœud : $TAILSCALE_IP"
+echo "IP Tailscale de CE noeud : $TAILSCALE_IP"
 
 # ---------------------------
 # 2. Génération du tls-san
 # ---------------------------
+echo ""
+echo "[2] Génération du tls-san..."
 TLS_SAN="  - localhost\n  - 127.0.0.1"
 for ip in "${MASTER_IPS[@]}"; do
   TLS_SAN="${TLS_SAN}\n  - ${ip}"
 done
 
 # ---------------------------
-# 3. Installation de K3S (join)
+# 3. Installation de K3S
 # ---------------------------
 echo ""
 echo "[3] Jonction au cluster K3S..."
@@ -95,11 +86,6 @@ disable-network-policy: true
 
 tls-san:
 $(printf '%b' "$TLS_SAN")
-
-etcd-arg:
-  - "heartbeat-interval=100" 
-  - "election-timeout=1000" 
-  - "peer-dial-timeout=3s"
 EOF
 
 curl -sfL https://get.k3s.io | sh -s - server
