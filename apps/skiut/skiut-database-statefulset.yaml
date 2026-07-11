@@ -53,15 +53,6 @@ spec:
         - name: mysql-init-scripts
           configMap:
             name: skiut-database-init
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: node.lifecycle
-                    operator: In
-                    values:
-                      - stable
   volumeClaimTemplates:
     - apiVersion: v1
       kind: PersistentVolumeClaim
@@ -69,10 +60,7 @@ spec:
         name: mysql-data
       spec:
         accessModes: ["ReadWriteOnce"]
-        storageClassName: ""
+        storageClassName: "local-path"
         resources:
           requests:
             storage: 10Gi
-        selector:
-          matchLabels:
-            app: skiut

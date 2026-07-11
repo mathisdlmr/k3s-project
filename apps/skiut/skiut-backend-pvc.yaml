@@ -15,7 +15,4 @@ spec:
   resources:
     requests:
       storage: 32Gi
-  storageClassName: "skiut"
-  selector:
-    matchLabels:
-      app: skiut
+  storageClassName: "local-path"
