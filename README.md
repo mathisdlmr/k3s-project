@@ -33,7 +33,7 @@ Le cluster tourne sur **3 NUCs** répartis sur **2 maisons différentes** (une f
                      └──────────────┘
 ```
 
-Mon PC est également dans le réseau Tailscale. J'ai un **HAProxy local** qui fait du round-robin sur les 3 control-planes pour avoir un accès HA à l'API server depuis ma machine — si un nœud est down, kubectl continue de fonctionner.
+Mon PC est également dans le réseau Tailscale. J'ai un **HAProxy local** qui fait du round-robin sur les 3 control-planes pour avoir un accès HA à l'API server depuis ma machine — si un noeud est down, kubectl continue de fonctionner.
 
 Côté réseau pods, Cilium tourne en mode **VXLAN tunnel** (MTU 1150 : 1200 imposé par Tailscale, minus 50 d'overhead VXLAN). etcd est en cluster natif k3s avec des snapshots automatiques toutes les 6h.
 
@@ -45,7 +45,7 @@ Côté réseau pods, Cilium tourne en mode **VXLAN tunnel** (MTU 1150 : 1200 imp
 |-------|------|
 | <img src="https://raw.githubusercontent.com/k3s-io/k3s/refs/heads/master/k3s.png" height="16"/> **k3s** | Distribution Kubernetes légère, base de tout |
 | <img src="https://raw.githubusercontent.com/cncf/artwork/main/projects/cilium/icon/color/cilium-icon-color.svg" height="16"/> **Cilium** | CNI eBPF, remplace kube-proxy, réseau VXLAN via Tailscale + Hubble |
-| **Tailscale** | VPN mesh inter-nœuds et accès depuis mon PC |
+| **Tailscale** | VPN mesh inter-noeuds et accès depuis mon PC |
 | **etcd** | Consensus distribué pour l'HA (snapshots toutes les 6h, rétention 10) |
 | <img src="https://raw.githubusercontent.com/longhorn/website/master/src/img/logos/longhorn-icon-color.svg" height="16"/> **Longhorn** *(coming soon)* | Stockage distribué résilient, réplication cross-nodes, snapshots, backups |
 
