@@ -93,7 +93,7 @@ sudo ufw allow in on tailscale0
 sudo ufw allow from 192.168.0.0/16
 
 # Pods Cilium (cluster-pool 10.0.0.0/8) vers l'hôte : pour joindre l'apiserver/kubelet de son node
-sudo ufw allow from 10.0.0.0/8 comment 'Cilium pod CIDR -> host (apiserver, kubelet)'
+sudo ufw allow from 10.0.0.0/8
 
 # SSH depuis Tailscale et LAN local
 sudo ufw allow in on tailscale0 to any port 22
@@ -124,3 +124,9 @@ echo "Firewall status:"
 sudo ufw status verbose
 
 echo "Node ready"
+
+# ---------------------------
+# 10. Install Lynis for security audit
+# ---------------------------
+sudo apt install -y lynis
+sudo lynis audit system
