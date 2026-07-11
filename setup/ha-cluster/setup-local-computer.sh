@@ -2,11 +2,10 @@
 
 set -euo pipefail
 
-# setup-haproxy.sh
-# À lancer sur le PC pour mettre en place HAProxy
+echo "Setup a laptop to connect to a HA K3S cluster"
 
 # ---------------------------
-# Parsing des arguments
+# 1. Parse arguments
 # ---------------------------
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -24,7 +23,7 @@ for var in MASTER_IPS MASTER_NAMES; do
 done
 
 # ---------------------------
-# Installation de HAProxy
+# 2. Install HAProxy
 # ---------------------------
 echo ""
 echo "[2] Installation de HAProxy..."
@@ -57,8 +56,7 @@ backend k3s-masters
 HAPROXYCFG
 
 for i in "${!MASTER_IPS[@]}"; do
-  echo "    server ${MASTER_NAMES[$i]} ${MASTER_IPS[$i]}:6443 check inter 2s fall 3 rise 2" \
-    | sudo tee -a /etc/haproxy/haproxy.cfg > /dev/null
+  echo "    server ${MASTER_NAMES[$i]} ${MASTER_IPS[$i]}:6443 check inter 2s fall 3 rise 2" | sudo tee -a /etc/haproxy/haproxy.cfg > /dev/null
 done
 
 sudo systemctl enable haproxy
@@ -71,7 +69,7 @@ echo "Vérification du status :"
 sudo systemctl status haproxy --no-pager
 
 # ---------------------------
-# Kubeconfig
+# 3. Kubeconfig
 # ---------------------------
 mkdir -p ~/.kube
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config

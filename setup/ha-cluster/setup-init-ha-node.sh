@@ -2,13 +2,13 @@
 
 set -euo pipefail
 
-# setup-init-ha.sh
-# À lancer sur le PREMIER control-plane (nœud d'initialisation du cluster)
+echo "Setup the first control-plane node for a HA K3S cluster"
+echo "This script was wrote for a ubuntu 24.04 LTS server"
 
 # ---------------------------
 # Collecte des paramètres
 # ---------------------------
-read -p "Nom du nœud : " NODE_NAME
+read -p "Nom du noeud : " NODE_NAME
 
 echo ""
 echo "=== Tailscale peers ==="
@@ -16,7 +16,7 @@ tailscale status
 echo "========================"
 echo ""
 
-read -p "Nombre de nœuds control-plane au total : " NUM_MASTERS
+read -p "Nombre de noeuds control-plane au total : " NUM_MASTERS
 
 MASTER_IPS=()
 MASTER_NAMES=()
@@ -28,29 +28,12 @@ for i in $(seq 1 "$NUM_MASTERS"); do
 done
 
 # ---------------------------
-# 0. Préparation du noeud
-# ---------------------------
-echo ""
-echo "[0] Préparation du noeud..."
-sudo swapoff -a
-sudo sed -i '/ swap / s/^/#/' /etc/fstab
-
-sudo modprobe br_netfilter
-sudo modprobe overlay
-
-cat << EOF | sudo tee /etc/sysctl.d/k8s.conf
-net.bridge.bridge-nf-call-iptables = 1
-net.ipv4.ip_forward = 1
-EOF
-sudo sysctl --system
-
-# ---------------------------
 # 1. Récupération de l'IP Tailscale
 # ---------------------------
 echo ""
 echo "[1] Récupération de l'IP Tailscale..."
 TAILSCALE_IP=$(tailscale ip -4)
-echo "IP Tailscale de CE nœud : $TAILSCALE_IP"
+echo "IP Tailscale de CE noeud : $TAILSCALE_IP"
 
 # ---------------------------
 # 2. Génération du tls-san
@@ -86,11 +69,6 @@ disable-network-policy: true
 tls-san:
 $(printf '%b' "$TLS_SAN")
 
-etcd-arg:
-  - "heartbeat-interval=100" 
-  - "election-timeout=1000" 
-  - "peer-dial-timeout=3s"
-
 etcd-snapshot-schedule-cron: "0 */6 * * *"
 etcd-snapshot-retention: 10
 
@@ -122,7 +100,7 @@ echo "======================================================"
 echo "Noeud init OK. Lancer setup-ha.sh sur les autres control-planes avec :"
 echo "   ./setup-ha.sh --token=${TOKEN} --init-node-ip=${TAILSCALE_IP}"
 echo "======================================================"
-read -p "Appuyer sur Entrée quand les autres control-planes sont ajoutés..."
+read -p "Appuyer sur Entrée pouyr continuer..."
 
 # ---------------------------
 # 5. Cilium
@@ -142,12 +120,6 @@ cilium install \
   --set tunnelProtocol=vxlan \
   --set hubble.relay.enabled=true \
   --set hubble.ui.enabled=true
-
-# --set mtu=1200 has no effect in Cilium 1.19.1 (not rendered in ConfigMap).
-# Pod MTU must be set manually: tailscale0=1200, vxlan overhead=50 → pod MTU=1150.
-# bpf-lb-sock enables socket-level LB (reduces hairpin NAT impact for local backends).
-kubectl patch configmap cilium-config -n kube-system --patch '{"data":{"mtu":"1150","bpf-lb-sock":"true"}}'
-kubectl rollout restart daemonset/cilium -n kube-system
 
 echo "Attente que Cilium soit prêt..."
 cilium status --wait
