@@ -13,6 +13,20 @@ configs:
       hs.status = "Healthy"
       hs.message = "Ingress is Healthy (LB IP check ignored)"
       return hs
+    # Ignorer les champs défaultés par la CRD ExternalSecret (sinon OutOfSync permanent)
+    resource.customizations.ignoreDifferences.external-secrets.io_ExternalSecret: |
+      jqPathExpressions:
+        - .spec.data[]?.remoteRef.conversionStrategy
+        - .spec.data[]?.remoteRef.decodingStrategy
+        - .spec.data[]?.remoteRef.metadataPolicy
+        - .spec.data[]?.remoteRef.nullBytePolicy
+        - .spec.dataFrom[]?.find.conversionStrategy
+        - .spec.dataFrom[]?.find.decodingStrategy
+        - .spec.dataFrom[]?.find.nullBytePolicy
+        - .spec.dataFrom[]?.extract.conversionStrategy
+        - .spec.dataFrom[]?.extract.decodingStrategy
+        - .spec.dataFrom[]?.extract.metadataPolicy
+        - .spec.dataFrom[]?.extract.nullBytePolicy
 
 controller:
   metrics:
