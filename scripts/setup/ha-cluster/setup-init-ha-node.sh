@@ -153,3 +153,14 @@ echo "Setup du cluster OK. Lancer setup-local-computer.sh sur votre PC avec :"
 echo "   ./setup-local-computer.sh --master-ips ${MASTER_IPS[@]} --master-names ${MASTER_NAMES[@]}"
 echo "======================================================"
 echo "Puis accéder à ArgoCD via : kubectl port-forward svc/argocd-server -n argocd 8080:443"
+
+# ---------------------------
+# 8. Longhorn
+# ---------------------------
+
+echo ""
+echo "[8] Lancement du preflight check pour Longhorn..."
+kubectl create namespace longhorn-system
+curl -L https://github.com/longhorn/cli/releases/download/v1.12.0/longhornctl-linux-amd64 -o longhornctl
+chmod +x longhornctl
+./longhornctl check preflight

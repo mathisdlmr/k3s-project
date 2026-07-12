@@ -8,19 +8,19 @@ echo "This script was wrote for a ubuntu 24.04 LTS server"
 # ---------------------------
 # 1. SYSTEM UPDATE
 # ---------------------------
-echo "[1/9] System update..."
+echo "[1/11] System update..."
 sudo apt update && sudo apt upgrade -y
 
 # ---------------------------
 # 2. BASE PACKAGES
 # ---------------------------
-echo "[2/9] Installing base packages..."
+echo "[2/11] Installing base packages..."
 sudo apt install -y openssh-server ufw unattended-upgrades
 
 # ---------------------------
 # 3. SSH CONFIG
 # ---------------------------
-echo "[3/9] Securing SSH..."
+echo "[3/11] Securing SSH..."
 
 mkdir -p ~/.ssh/authorized_keys
 read -p "Enter your SSH public key: " SSH_PUBLIC_KEY
@@ -38,13 +38,13 @@ sudo systemctl restart ssh
 # ---------------------------
 # 4. AUTO SECURITY UPDATES
 # ---------------------------
-echo "[4/9] Enabling unattended upgrades..."
+echo "[4/11] Enabling unattended upgrades..."
 sudo dpkg-reconfigure -f noninteractive unattended-upgrades
 
 # ---------------------------
 # 5. MODIFY KERNEL PARAMETERS
 # ---------------------------
-echo "[5/9] Modifying kernel parameters..."
+echo "[5/11] Modifying kernel parameters..."
 
 # 5.1. Pas de swap car k3s ne sait pas le gérer
 sudo swapoff -a
@@ -64,7 +64,7 @@ sudo sysctl --system
 # ---------------------------
 # 6. INSTALL TAILSCALE
 # ---------------------------
-echo "[6/9] Installing Tailscale..."
+echo "[6/11] Installing Tailscale..."
 curl -fsSL https://tailscale.com/install.sh | sh
 
 sudo systemctl enable --now tailscaled
@@ -77,7 +77,7 @@ echo "Tailscale IP: $TAILSCALE_IP"
 # ---------------------------
 # 7. FIREWALL
 # ---------------------------
-echo "[7/9] Configuring firewall..."
+echo "[7/11] Configuring firewall..."
 
 sudo ufw --force reset
 sudo ufw default deny incoming
@@ -104,7 +104,7 @@ sudo ufw --force enable
 # ---------------------------
 # 8. Inotify config for log collection
 # ---------------------------
-echo "[8/9] Configuring inotify..."
+echo "[8/11] Configuring inotify..."
 
 sudo touch /etc/sysctl.d/99-k3s.conf
 echo "fs.inotify.max_user_watches = 524288" | sudo tee -a /etc/sysctl.d/99-k3s.conf
@@ -113,9 +113,27 @@ echo "fs.inotify.max_queued_events=65536" | sudo tee -a /etc/sysctl.d/99-k3s.con
 sudo sysctl --system
 
 # ---------------------------
-# 9. Final check on opened ports
+# 9. Longhorn dependencies
 # ---------------------------
-echo "[9/9] Final checks on opened ports..."
+echo "[9/11] Installing Longhorn dependencies..."
+
+sudo apt install -y open-iscsi nfs-common cryptsetup dmsetup
+sudo systemctl enable --now iscsid
+sudo modprobe iscsi_tcp
+echo iscsi_tcp | sudo tee /etc/modules-load.d/longhorn.conf
+
+# Disable multipathd - https://longhorn.io/kb/troubleshooting-volume-with-multipath/
+sudo tee /etc/multipath.conf > /dev/null << 'EOF'
+blacklist {
+    devnode "^sd[a-z0-9]+"
+}
+EOF
+sudo systemctl restart multipathd
+
+# ---------------------------
+# 10. Final check on opened ports
+# ---------------------------
+echo "[10/11] Final checks on opened ports..."
 
 echo "Open ports:"
 ss -tulnp
@@ -126,7 +144,8 @@ sudo ufw status verbose
 echo "Node ready"
 
 # ---------------------------
-# 10. Install Lynis for security audit
+# 11. Install Lynis for security audit
 # ---------------------------
+echo "[11/11] Installing Lynis for security audit..."
 sudo apt install -y lynis
 sudo lynis audit system
