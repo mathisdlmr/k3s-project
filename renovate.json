@@ -8,5 +8,12 @@
   "argocd": {
     "enabled": true,
     "managerFilePatterns": ["**/*-app.yaml"]
-  }
+  },
+  "packageRules": [
+    {
+      "description": "Bump kube-prometheus-stack and prometheus-operator-crds together to avoid ArgoCD diff/CRD deadlock",
+      "matchPackageNames": ["kube-prometheus-stack", "prometheus-operator-crds"],
+      "groupName": "prometheus-stack"
+    }
+  ]
 }
