@@ -1,5 +1,9 @@
 fullnameOverride: kube-prometheus-stack
 
+# CRDs installées par prometheus-operator-crds pour éviter le deadlock diff/CRD lors des bumps de chart
+crds:
+  enabled: false
+
 defaultRules:
   create: true
 
