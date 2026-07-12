@@ -2,26 +2,11 @@
 set -euo pipefail
 
 CP_NODE_NAME="master"
-CLOUDFLARE_TUNNEL_TOKEN=""
-CLOUDFLARE_API_TOKEN=""
-
-# ---------------------------
-# 0. Vérification des variables
-# ---------------------------
-echo "[0/10] Vérification des variables..."
-for var in CLOUDFLARE_TUNNEL_TOKEN CLOUDFLARE_API_TOKEN; do
-  if [ -z "${!var}" ]; then
-    echo "Erreur : la variable $var n'est pas définie"
-    exit 1
-  fi
-done
 
 # ---------------------------
 # 1. Tailscale + récupération IP
 # ---------------------------
 tailscale -v 
-
-
 TAILSCALE_IP=$(tailscale ip -4)
 echo "IP Tailscale détectée : $TAILSCALE_IP"
 
@@ -64,55 +49,13 @@ echo "Déploiement de l'app bootstrap..."
 kubectl apply -f ./bootstrap-app.yaml
 
 # ---------------------------
-# 5. SealedSecrets
+# 5. Apply ESO Creds for Infisical
 # ---------------------------
-KUBESEAL_VERSION="0.34.0"
-wget "https://github.com/bitnami-labs/sealed-secrets/releases/download/v${KUBESEAL_VERSION}/kubeseal-${KUBESEAL_VERSION}-linux-amd64.tar.gz"
-tar -xvzf kubeseal-${KUBESEAL_VERSION}-linux-amd64.tar.gz kubeseal
-sudo install -m 755 kubeseal /usr/local/bin/kubeseal
-rm kubeseal-${KUBESEAL_VERSION}-linux-amd64.tar.gz kubeseal
 
-echo "Attente que le pod sealed-secrets-controller soit prêt..."
-kubectl wait --for=condition=Ready pod -l name=sealed-secrets-controller -n kube-system --timeout=120s
+echo "Déploiement des creds ESO pour Infisical..."
+read -p "Entrez le chemin du fichier de creds ESO (universal-auth-credentials) pour Infisical (ex: ./infisical-creds.yaml) : " ESO_CREDS_FILE
+kubectl apply -f "$ESO_CREDS_FILE"
 
-# ---------------------------
-# 6. Secrets Cloudflare
-# ---------------------------
-echo "[Création des secrets Cloudflare...]"
-
-mkdir -p ./infra/cloudflared
-
-cat > ./infra/cloudflared/cloudflare-api-token-secret.yaml <<EOF
-apiVersion: v1
-kind: Secret
-metadata:
-  name: cloudflare-api-token-secret
-  namespace: infra
-type: Opaque
-data:
-  api-token: $(echo -n "$CLOUDFLARE_API_TOKEN" | base64)
-EOF
-
-cat > ./infra/cloudflared/cloudflare-tunnel-token-secret.yaml <<EOF
-apiVersion: v1
-kind: Secret
-metadata:
-  name: cloudflared-tunnel-token-secret
-  namespace: infra
-type: Opaque
-data:
-  token: $(echo -n "$CLOUDFLARE_TUNNEL_TOKEN" | base64)
-EOF
-
-# ---------------------------
-# 7. Git push new cloudflared secrets
-# ---------------------------
-echo "Chiffrement des secrets avec kubeseal..."
-kubeseal --controller-namespace infra --controller-name sealed-secrets --format yaml < ./infra/cloudflared/cloudflare-api-token-secret.yaml > ./infra/cloudflared/cloudflare-api-token-sealed-secret.yaml
-kubeseal --controller-namespace infra --controller-name sealed-secrets --format yaml < ./infra/cloudflared/cloudflare-tunnel-token-secret.yaml > ./infra/cloudflared/cloudflare-tunnel-token-sealed-secret.yaml
-git add infra/cloudflared/cloudflare-api-token-sealed-secret.yaml infra/cloudflared/cloudflare-tunnel-token-sealed-secret.yaml
-git commit -m "chore(infra: cloudflare): roll cloudflare sealed-secrets with new encryption key"
-git push
 
 # ---------------------------
 # 8. Final message
