@@ -40,8 +40,10 @@ fi
 # ---------------------------
 # 4. ArgoCD
 # ---------------------------
+
 kubectl create namespace argocd || true
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
 ARGOCD_PWD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
 kubectl -n argocd port-forward svc/argocd-server 8081:443 &
 
@@ -49,16 +51,33 @@ echo "Déploiement de l'app bootstrap..."
 kubectl apply -f ./bootstrap-app.yaml
 
 # ---------------------------
-# 5. Apply ESO Creds for Infisical
+# 5. Create ESO Creds for Infisical
 # ---------------------------
 
 echo "Déploiement des creds ESO pour Infisical..."
-read -p "Entrez le chemin du fichier de creds ESO (universal-auth-credentials) pour Infisical (ex: ./infisical-creds.yaml) : " ESO_CREDS_FILE
-kubectl apply -f "$ESO_CREDS_FILE"
+echo "Créez un Machine Identities dans Infisical, puis récupérer les creds en universal auth"
 
+read -p "Entrer le Client-Id Infisical : " INFISICAL_CLIENT_ID
+read -p "Entrer le Client-Secret Infisical : " INFISICAL_CLIENT_SECRET
+
+echo "[Création du secret Infisical pour ESO...]"
+mkdir -p ./infra/external-secrets/
+
+cat > ./infra/external-secrets/infisical-universal-auth-credentials.yaml <<EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: infisical-universal-auth-credentials
+  namespace: infra
+type: Opaque
+stringData:
+  clientId: $(echo -n "$INFISICAL_CLIENT_ID" | base64)
+  clientSecret: $(echo -n "$INFISICAL_CLIENT_SECRET" | base64)
+EOF
+kubectl apply -f ./infra/external-secrets/infisical-universal-auth-credentials.yaml
 
 # ---------------------------
-# 8. Final message
+# 6. Final message
 # ---------------------------
 echo "Setup terminé !"
 echo "Accès ArgoCD UI: http://localhost:8081 (login: admin, mot de passe $ARGOCD_PWD)"
