@@ -15,6 +15,9 @@ spec:
   sources:
     - repoURL: https://github.com/mathisDlmr/k3s-project.git
       targetRevision: main
+      path: infra/longhorn
+    - repoURL: https://github.com/mathisDlmr/k3s-project.git
+      targetRevision: main
       ref: k3s-project
     - repoURL: https://charts.longhorn.io
       chart: longhorn

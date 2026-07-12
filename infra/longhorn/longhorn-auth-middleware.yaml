@@ -1,0 +1,8 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: longhorn-auth
+  namespace: infra
+spec:
+  basicAuth:
+    secret: longhorn-auth-secret # Generated using htpasswd -nb admin '<mot_de_passe>'

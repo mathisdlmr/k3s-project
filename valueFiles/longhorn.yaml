@@ -1,0 +1,29 @@
+preUpgradeChecker:
+  jobEnabled: false # Helm-managed, conflict encountered with ArgoCD (https://longhorn.io/docs/1.12.0/deploy/install/install-with-argocd/)
+
+persistence:
+  defaultClass: true
+  defaultFsType: ext4
+  defaultClassReplicaCount: 3
+  defaultDataLocality: best-effort # keep 1 replica per node, best for my Tailscale network with latency
+
+defaultSettings:
+  defaultDataPath: /var/lib/longhorn
+  defaultDataLocality: best-effort
+  nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
+
+longhornUI:
+  replicas: 1
+
+ingress:
+  enabled: true
+  ingressClassName: traefik
+  host: longhorn.mdlmr.fr
+  tls: false
+  annotations:
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.middlewares: infra-longhorn-auth@kubernetescrd
+
+metrics:
+  serviceMonitor:
+    enabled: true
