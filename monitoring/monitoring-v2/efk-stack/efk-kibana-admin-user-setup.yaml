@@ -1,0 +1,71 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: efk-kibana-admin-user-setup
+spec:
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 3600
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: setup-kibana-admin-user
+          image: curlimages/curl:8.10.1
+          env:
+            - name: ES_URL
+              value: "https://efk-elasticsearch-es-http.monitoring-v2.svc:9200"
+            - name: KIBANA_ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: efk-es-credentials
+                  key: kibana_username
+            - name: KIBANA_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: efk-es-credentials
+                  key: kibana_password
+          volumeMounts:
+            - name: elastic-user
+              mountPath: /mnt/elastic-user
+              readOnly: true
+            - name: es-http-certs
+              mountPath: /mnt/es-certs
+              readOnly: true
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -eu
+              ELASTIC_PASSWORD=$(cat /mnt/elastic-user/elastic)
+
+              echo "Waiting for Elasticsearch..."
+              i=0
+              until curl -s -o /dev/null \
+                  -w "%{http_code}" \
+                  --cacert /mnt/es-certs/ca.crt \
+                  -u "elastic:${ELASTIC_PASSWORD}" \
+                  "${ES_URL}/_cluster/health" | grep -q "200"; do
+                i=$((i+1))
+                if [ "$i" -ge 30 ]; then
+                  echo "Elasticsearch not reachable after 30 attempts" >&2
+                  exit 1
+                fi
+                echo "ES still not ready, attempt $i/30..."
+                sleep 10
+              done
+              echo "Elasticsearch is up !"
+
+              echo "Creating/updating user ${KIBANA_ADMIN_USERNAME} (role kibana_admin)..."
+              curl -sf --cacert /mnt/es-certs/ca.crt \
+                -u "elastic:${ELASTIC_PASSWORD}" \
+                -X POST "${ES_URL}/_security/user/${KIBANA_ADMIN_USERNAME}" \
+                -H 'Content-Type: application/json' \
+                -d "{\"password\": \"${KIBANA_ADMIN_PASSWORD}\", \"roles\": [\"kibana_admin\"], \"full_name\": \"Kibana Admin\"}"
+
+              echo "Kibana admin user setup completed successfully !"
+      volumes:
+        - name: elastic-user
+          secret:
+            secretName: efk-elasticsearch-es-elastic-user
+        - name: es-http-certs
+          secret:
+            secretName: efk-elasticsearch-es-http-certs-public

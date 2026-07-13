@@ -9,13 +9,16 @@ spec:
   es:
     host: efk-elasticsearch-es-http.monitoring-v2.svc
     port: 9200
-    httpUser: 
-      value: elastic
+    httpUser:
+      valueFrom:
+        secretKeyRef:
+          name: efk-es-credentials
+          key: fluentbit_username
     httpPassword:
       valueFrom:
         secretKeyRef:
-          name: efk-elasticsearch-es-elastic-user
-          key: elastic
+          name: efk-es-credentials
+          key: fluentbit_password
     tls:
       verify: false
     index: fluent-bit
