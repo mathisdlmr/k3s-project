@@ -32,6 +32,9 @@ _References :_
 * https://medium.com/@sraza0098/log-rotation-in-the-elk-stack-using-ilm-index-lifecycle-policy-0fcc011d0c2c
 * https://discuss.elastic.co/t/cluster-health-wrong-yellow-spikes-because-new-index/330124
 
+### Fixed
+- ArgoCD AppProject explicitly details sourceRepos and disable clusterResourceWhitelist for projects that doesn't have CRDs
+
 ### Removed
 - **Fluentd** fully removed for the benefit of Fluent Operator
 
@@ -123,6 +126,9 @@ _References :_
 ### Fixed
 - ArgoCD ingress LB IP diff ignored to stop permanent OutOfSync
 
+_References :_
+* https://github.com/argoproj/argo-cd/issues/14607
+
 ---
 
 ## 22 03 2026 - Routing on the HA network
@@ -130,9 +136,6 @@ _References :_
 ### Changed
 - Traefik switched to a **DaemonSet with hostPort** so cloudflared can route to any node
 - ArgoCD sync-waves redefined to avoid conflicts
-
-_References :_
-* https://github.com/argoproj/argo-cd/issues/14607
 
 ### Fixed
 - Cilium MTU issues on the Tailscale-backed HA cluster
