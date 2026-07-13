@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: fluentd
+  name: fluent-operator
   namespace: argocd
   labels:
     argocd.argoproj.io/instance: monitoring-v2
@@ -15,11 +15,11 @@ spec:
       targetRevision: main
       ref: k3s-project
     - repoURL: https://fluent.github.io/helm-charts
-      chart: fluentd
-      targetRevision: 0.5.3
+      chart: fluent-operator
+      targetRevision: 4.2.0
       helm:
         valueFiles:
-          - $k3s-project/valueFiles/fluentd.yaml
+          - $k3s-project/valueFiles/fluent-operator.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring-v2

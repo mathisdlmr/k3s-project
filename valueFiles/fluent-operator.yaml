@@ -1,0 +1,24 @@
+Kubernetes: true
+
+operator:
+  enable: true
+  resources:
+    limits:
+      cpu: 50m
+      memory: 50Mi
+    requests:
+      cpu: 10m
+      memory: 20Mi
+
+fluentbit:
+  enable: true
+  resources:
+    limits:
+      cpu: 100m
+      memory: 100Mi
+    requests:
+      cpu: 10m
+      memory: 25Mi
+
+fluentd:
+  enable: false
