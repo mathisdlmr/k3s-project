@@ -9,7 +9,8 @@ spec:
   es:
     host: efk-elasticsearch-es-http.monitoring-v2.svc
     port: 9200
-    httpUser: elastic
+    httpUser: 
+      value: elastic
     httpPassword:
       valueFrom:
         secretKeyRef:
