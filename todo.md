@@ -17,21 +17,17 @@
   - Et voir si il n'y a pas d'autres serviceMonitor sympa à deploy
 - [ ] Voir pour parser les templates de value Helm (Traefik, Alloy, Loki, etc.) avec un LLM et voir ce qu'il peut etre interessant à garder
 - [ ] Globalement mieux ranger monitoring entre chart helm, overload de config, dashboards, etc.
-- [ ] Définir des kustomization.yaml partout ou nul part
 
 ## FEAT
 
 - cleanup sur la partie monitoring (folders organisés n'importe comment pour metrics/)
 - dashboards prometheus en gitops
 - Velero
-- [ ] Remplacer Flannel par Cillium pour le CNI (et voir si y a pas d'autres trucs pourris qui trainent
-- Cillium Hubble
+- [ ] Cillium Hubble
 - [ ] Voir pour des métriques sur tous les services : loki, tempo, traefik, etc.
 - [ ] Refaire la doc de README
-- [ ] Switch de sealed-secrets à external secrets
 - [ ] Dashboards Grafana ArgoCD, Cloudflare, Traefik...
 - [ ] Redis global (app "utils")
-- [ ] EFK (Elasticsearch, FluentBit, Kibana) pour se former dessus en parallèle (app "monitoring-v2")
 - [ ] OTel en parallele de Alloy (et pour log/metrics/traces Filebeat, metricbeat, APM server) (app "monitoring-v2")
 - [ ] Kubernetes dashboard
 - [ ] Sysdig et/ou Falco et/ou trivy operator (app "security")
@@ -54,13 +50,6 @@
 - [ ] Rancher pour du multi node ? Karpenter ?
 - [ ] External DNS
 
-## TODO - Website
-
-- [ ] Ajuster le shadow violet sur les techno
-- [ ] Ajouter un filtre sur les projets
-- [ ] Mettre à jour les liens, descriptions, langages... dans les projects
-- [ ] Proposer plusieurs screens/pdf de chaque projet
-
 ## Migration 21/03/2026
 
 une fois longhorn -> --disable=local-storage sur k3s
@@ -72,24 +61,8 @@ une fois CNI :
 disable:
 
 - servicelb
-- traefik # si tu gères ton propre Traefik
-
-# /etc/rancher/k3s/config.yaml
-
-write-kubeconfig-mode: "0600"
-
-# Désactiver les composants non utilisés
-
-disable:
-
-- servicelb
 - traefik
 - local-storage # après migration Longhorn
-
-# Réseau
-
-flannel-backend: none # si tu utilises Cilium
-disable-network-policy: true # Cilium gère ça
 
 # Perf etcd (pour HA)
 
@@ -115,30 +88,16 @@ kube-apiserver-arg:
 - "audit-log-path=/var/log/k3s-audit.log"
 - "audit-log-maxage=7"
 
-🔥 1. Sécurité Kubernetes (très important pour la suite)
+1. Sécurité Kubernetes (très important pour la suite)
+* RBAC strict
+* pas de cluster-admin partout
+* limiter les ServiceAccount
 
-Tu n’en parles pas encore, mais plus critique que SSH :
+2. Sécuriser K3S lui-même
+* permissions sur /etc/rancher/k3s/k3s.yaml
+* rotation des certificats
+* tokens sécurisés
 
-👉 à faire plus tard :
-
-RBAC strict
-pas de cluster-admin partout
-limiter les ServiceAccount
-🔥 2. Sécuriser K3S lui-même
-
-Exemples :
-
-permissions sur /etc/rancher/k3s/k3s.yaml
-rotation des certificats
-tokens sécurisés
-🔥 3. Isolation réseau (CNI)
-
-Quand tu passeras à :
-
-Longhorn
-HA
-
-👉 il faudra vérifier :
-
-traffic inter-node sécurisé
-policies réseau (NetworkPolicy)
+3. Isolation réseau (CNI) depuis LongHorn + HA
+* traffic inter-node sécurisé
+* policies réseau (NetworkPolicy)
