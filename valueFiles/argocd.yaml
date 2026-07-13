@@ -13,6 +13,20 @@ configs:
       hs.status = "Healthy"
       hs.message = "Ingress is Healthy (LB IP check ignored)"
       return hs
+    # Un cluster ES mono-node reste "yellow" en permanence (aucun 2e node pour les replica shards)
+    resource.customizations.health.elasticsearch.k8s.elastic.co_Elasticsearch: |
+      hs = {}
+      if obj.status ~= nil and obj.status.health == "red" then
+        hs.status = "Degraded"
+        hs.message = "Elasticsearch cluster health is red"
+      elseif obj.status ~= nil and obj.status.phase == "Ready" then
+        hs.status = "Healthy"
+        hs.message = "Elasticsearch is Ready (health=" .. (obj.status.health or "unknown") .. ")"
+      else
+        hs.status = "Progressing"
+        hs.message = "Waiting for Elasticsearch to become Ready"
+      end
+      return hs
     # Ignorer les champs défaultés par la CRD ExternalSecret (sinon OutOfSync permanent)
     resource.customizations.ignoreDifferences.external-secrets.io_ExternalSecret: |
       jqPathExpressions:
