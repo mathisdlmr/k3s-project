@@ -19,6 +19,14 @@ fluentbit:
     requests:
       cpu: 10m
       memory: 25Mi
+  additionalVolumes:
+    - name: es-ca-cert
+      secret:
+        secretName: efk-elasticsearch-es-http-certs-public
+  additionalVolumesMounts:
+    - name: es-ca-cert
+      mountPath: /fluent-bit/es-certs
+      readOnly: true
 
 fluentd:
   enable: false

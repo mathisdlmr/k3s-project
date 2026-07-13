@@ -20,7 +20,8 @@ spec:
           name: efk-es-credentials
           key: fluentbit_password
     tls:
-      verify: false
+      verify: true
+      caFile: /fluent-bit/es-certs/ca.crt
     index: logs-fluentbit-default
     suppressTypeName: "On" # `_type` field is deprecated in ES > 7.x
     writeOperation: create
