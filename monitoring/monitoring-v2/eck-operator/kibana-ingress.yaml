@@ -18,7 +18,7 @@ spec:
               service:
                 name: efk-kibana-kb-http
                 port:
-                  number: 80
+                  number: 5601
   tls:
     - hosts:
         - kibana.mdlmr.fr
