@@ -2,7 +2,11 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: ilm-policy-job
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
 spec:
+  backoffLimit: 4
   template:
     spec:
       containers:
@@ -13,12 +17,12 @@ spec:
             - |
               # Apply ILM Policy
               echo "Applying ILM Policy"
-              response=$(curl -kv -u elastic:${ELASTIC_PASSWORD} -X PUT "https://efk-elasticsearch-es-http:9200/_ilm/policy/my-ilm-policy" -H 'Content-Type: application/json' -d "$(cat /etc/config/ilm-policy/ilm-policy.json)")
+              response=$(curl -kv -u elastic:${ELASTIC_PASSWORD} -X PUT "https://efk-elasticsearch-es-http:9200/_ilm/policy/efk-ilm-policy" -H 'Content-Type: application/json' -d "$(cat /etc/config/ilm-policy/ilm-policy.json)")
               echo "ILM Policy Response: $response"
 
               # Apply Index Template
               echo "Applying Index Template"
-              response=$(curl -kv -u elastic:${ELASTIC_PASSWORD} -X PUT "https://efk-elasticsearch-es-http:9200/_index_template/my-index-template" -H 'Content-Type: application/json' -d "$(cat /etc/config/index-template/index-template.json)")
+              response=$(curl -kv -u elastic:${ELASTIC_PASSWORD} -X PUT "https://efk-elasticsearch-es-http:9200/_index_template/efk-index-template" -H 'Content-Type: application/json' -d "$(cat /etc/config/index-template/index-template.json)")
               echo "Index Template Response: $response"
           env:
             - name: ELASTIC_PASSWORD
@@ -45,4 +49,3 @@ spec:
               - key: index-template.json
                 path: index-template.json
       restartPolicy: Never
-  backoffLimit: 4
