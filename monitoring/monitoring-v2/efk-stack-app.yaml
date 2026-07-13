@@ -16,7 +16,7 @@ spec:
       path: monitoring/monitoring-v2/efk-stack/
   destination:
     server: https://kubernetes.default.svc
-    namespace: monitoring
+    namespace: monitoring-v2
   syncPolicy:
     automated:
       selfHeal: true
