@@ -21,6 +21,7 @@ spec:
           key: fluentbit_password
     tls:
       verify: false
-    index: fluent-bit
+    index: logs-fluentbit-default
     suppressTypeName: "On" # `_type` field is deprecated in ES > 7.x
-    writeOperation: upsert
+    writeOperation: create
+    generateID: true
