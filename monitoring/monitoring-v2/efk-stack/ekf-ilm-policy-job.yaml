@@ -1,0 +1,48 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ilm-policy-job
+spec:
+  template:
+    spec:
+      containers:
+        - name: apply-ilm-policy
+          image: curlimages/curl:latest
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              # Apply ILM Policy
+              echo "Applying ILM Policy"
+              response=$(curl -kv -u elastic:${ELASTIC_PASSWORD} -X PUT "https://efk-elasticsearch-es-http:9200/_ilm/policy/my-ilm-policy" -H 'Content-Type: application/json' -d "$(cat /etc/config/ilm-policy/ilm-policy.json)")
+              echo "ILM Policy Response: $response"
+
+              # Apply Index Template
+              echo "Applying Index Template"
+              response=$(curl -kv -u elastic:${ELASTIC_PASSWORD} -X PUT "https://efk-elasticsearch-es-http:9200/_index_template/my-index-template" -H 'Content-Type: application/json' -d "$(cat /etc/config/index-template/index-template.json)")
+              echo "Index Template Response: $response"
+          env:
+            - name: ELASTIC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: efk-elasticsearch-es-elastic-user
+                  key: elastic
+          volumeMounts:
+            - mountPath: /etc/config/ilm-policy
+              name: ilm-policy-volume
+            - mountPath: /etc/config/index-template
+              name: index-template-volume
+      volumes:
+        - name: ilm-policy-volume
+          configMap:
+            name: ilm-and-index-template-config
+            items:
+              - key: ilm-policy.json
+                path: ilm-policy.json
+        - name: index-template-volume
+          configMap:
+            name: ilm-and-index-template-config
+            items:
+              - key: index-template.json
+                path: index-template.json
+      restartPolicy: Never
+  backoffLimit: 4
