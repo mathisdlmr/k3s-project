@@ -13,7 +13,7 @@ spec:
   sources:
     - repoURL: https://github.com/mathisDlmr/k3s-project.git
       targetRevision: main
-      path: monitoring/monitoring-v2/eck/
+      path: monitoring/monitoring-v2/eck-operator/
     - repoURL: https://github.com/mathisDlmr/k3s-project.git
       targetRevision: main
       ref: k3s-project
