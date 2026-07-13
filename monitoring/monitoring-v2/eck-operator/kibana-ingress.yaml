@@ -4,9 +4,10 @@ metadata:
   name: kibana-ingress
   namespace: monitoring-v2
   annotations:
+    argocd.argoproj.io/sync-wave: "2"
     kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/router.tls: "true"
-    argocd.argoproj.io/sync-wave: "2"
+    traefik.ingress.kubernetes.io/service.serversscheme: https
 spec:
   rules:
     - host: kibana.mdlmr.fr
