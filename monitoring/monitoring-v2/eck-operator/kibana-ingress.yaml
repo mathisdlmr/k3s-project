@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kibana-ingress
+  namespace: monitoring-v2
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  rules:
+    - host: kibana.mdlmr.fr
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: efk-kibana-kb-http
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - kibana.mdlmr.fr

@@ -1,0 +1,23 @@
+apiVersion: kibana.k8s.elastic.co/v1
+kind: Kibana
+metadata:
+  name: efk-kibana
+  namespace: monitoring-v2
+spec:
+  version: 8.12.2
+  count: 1
+  elasticsearchRef:
+    name: efk-elasticsearch
+  config:
+    server.publicBaseUrl: "http://localhost:5601"
+  podTemplate:
+    spec:
+      containers:
+      - name: kibana
+        resources:
+          requests:
+            memory: 512Mi
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 1000m
