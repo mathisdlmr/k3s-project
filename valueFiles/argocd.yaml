@@ -6,6 +6,10 @@ global:
 configs:
   params:
     server.insecure: "true"
+
+  # Useful ressources : 
+  # - https://argo-cd.readthedocs.io/en/stable/operator-manual/health/
+  # - https://argo-cd.readthedocs.io/en/stable/user-guide/diffing/#system-level-configuration
   cm:
     # Ignorer l'absence d'IP LoadBalancer sur les Ingress
     resource.customizations.health.networking.k8s.io_Ingress: |
