@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: eck
+  name: efk-stack
   namespace: argocd
   labels:
     argocd.argoproj.io/instance: monitoring-v2
@@ -13,16 +13,10 @@ spec:
   sources:
     - repoURL: https://github.com/mathisDlmr/k3s-project.git
       targetRevision: main
-      ref: k3s-project
-    - repoURL: https://helm.elastic.co
-      chart: eck-operator
-      targetRevision: 3.4.1
-      helm:
-        valueFiles:
-          - $k3s-project/valueFiles/eck-operator.yaml
+      path: monitoring/monitoring-v2/efk-stack/
   destination:
     server: https://kubernetes.default.svc
-    namespace: monitoring-v2
+    namespace: monitoring
   syncPolicy:
     automated:
       selfHeal: true
