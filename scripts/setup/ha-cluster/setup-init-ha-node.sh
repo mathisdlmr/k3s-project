@@ -72,7 +72,7 @@ $(printf '%b' "$TLS_SAN")
 etcd-snapshot-schedule-cron: "0 */6 * * *"
 etcd-snapshot-retention: 10
 
-write-kubeconfig-mode: "0644"
+secrets-encryption: true
 EOF
 
 echo ""
@@ -92,6 +92,7 @@ echo "[4] Création du kubeconfig..."
 mkdir -p ~/.kube
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 sudo chown "$USER:$USER" ~/.kube/config
+chmod 600 ~/.kube/config
 export KUBECONFIG=~/.kube/config
 
 echo ""

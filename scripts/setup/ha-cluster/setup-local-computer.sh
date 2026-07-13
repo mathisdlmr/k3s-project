@@ -71,7 +71,10 @@ sudo systemctl status haproxy --no-pager
 # ---------------------------
 # 3. Kubeconfig
 # ---------------------------
+echo "[WARN] k3s certificate are valid for 1y (https://docs.k3s.io/cli/certificate)"
+echo "[WARN] Re-apply this part every year to refresh the kubeconfig on the laptop"
 mkdir -p ~/.kube
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 sudo chown "$USER:$USER" ~/.kube/config
+chmod 600 ~/.kube/config
 export KUBECONFIG=~/.kube/config

@@ -96,6 +96,7 @@ curl -sfL https://get.k3s.io | sh -s - server
 mkdir -p ~/.kube
 sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
 sudo chown "$USER:$USER" ~/.kube/config
+chmod 600 ~/.kube/config
 export KUBECONFIG=~/.kube/config
 
 echo ""
