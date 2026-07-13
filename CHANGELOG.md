@@ -11,18 +11,55 @@ Entries are grouped by day, newest first. Each entry uses the following labels, 
 
 ---
 
+## 13 07 2026 - EFK Stack
+
+### Added
+- **ECK Operator** deployed on monitoring-v2 namespace to provide ready-to-use elasticsearch cluster and kibana UI. In the short term, it will be use to create a ElasticSearch-Fluentd-Kibana stack as an other way than Grafana Labs to monitore
+- **Fluent Operator** deployed on monitoring-v2 namespace, also to provide a ready-to-use tool in cluster : fluentbit log collector.
+- **EFK Stack** as an other monitoring stack to make comparaison between Grafana Labs vs EFK. Thanks to ECK and Fluent Operator, the deployment is very easy, and ressources lifecycle fully managed
+
+_References :_ 
+* https://support.tools/efk-stack-kubernetes-production-eck-fluent-operator/
+
+### Changes 
+- Create Jobs that fully configure EFK stack
+  - `efk-ilm-policy-jobs` uses `efk-ilm-configmap` to create a new Index Lifecycle Management using Elasticsearch API
+  - `efk-kibana-admin-user-setup` create a new Elasticsearch account to access Kibana UI using Infisicale creds (instead of ECK-managed creds)
+  - `efk-fluentbit-es-user-setup` create a new Elasticsearch role and account that Fluentbit ClusterOutput can use to send logs into Elasticsearch
+- Fix ArgoCD `resource.customizations.health.elasticsearch` to consider a yellow Elasticsearch cluster as healthy (because green color needs a 2e node for replica shard)
+
+_References :_ 
+* https://medium.com/@sraza0098/log-rotation-in-the-elk-stack-using-ilm-index-lifecycle-policy-0fcc011d0c2c
+* https://discuss.elastic.co/t/cluster-health-wrong-yellow-spikes-because-new-index/330124
+
+### Removed
+- **Fluentd** fully removed for the benefit of Fluent Operator
+
+---
+
 ## 12 07 2026 - Storage & secrets overhaul
 
 ### Added
-- **Longhorn** deployed for high-availability distributed storage: cleaner StorageClass/PV management, snapshots, and (most importantly) metrics. UI exposed behind a Traefik middleware
 - **External Secrets Operator (ESO) + Infisical** as the new secrets backend. Every secret was recreated as an `ExternalSecret`. HashiCorp Vault was considered but judged overkill for this use case; Infisical also allows browsing secrets from anywhere (e.g. phone)
+- **Longhorn** deployed for high-availability distributed storage: cleaner StorageClass/PV management, snapshots, and (most importantly) metrics. UI exposed behind a Traefik middleware
+
+_References :_
+* External Secrets Operator
+    * https://external-secrets.io/main/provider/infisical/
+    * https://infisical.com/videos/external-secrets-operator-eso-explained
+* Longhorn
+    * https://longhorn.io/docs/1.12.0/deploy/install/#installation-requirements
+    * https://longhorn.io/docs/1.12.0/deploy/install/install-with-argocd/
 
 ### Changed
 - `kube-prometheus-stack` CRDs split into a dedicated ArgoCD app (`prometheus-operator-crds`) to avoid conflicts on version bumps, with a Renovate package rule keeping both charts in lockstep
 - ArgoCD configured to ignore ESO-injected fields on `ExternalSecret` resources, eliminating permanent OutOfSync noise
 
+_References :_
+* https://oneuptime.com/blog/post/2026-02-26-how-to-deploy-the-prometheus-operator-with-argocd/view
+
 ### Removed
-- **SealedSecrets** fully decommissioned (Bitnami moving it behind a paywall was the trigger)
+- **SealedSecrets** fully removed (Bitnami moving it behind a paywall was the trigger)
 
 ---
 
@@ -65,6 +102,9 @@ Entries are grouped by day, newest first. Each entry uses the following labels, 
 ### Added
 - Additional Prometheus `ScrapeConfig` to monitor the k3s server itself from Grafana
 
+_References :_
+* https://medium.com/@kunalvirwal/how-i-set-up-secure-external-monitoring-for-my-k3s-cluster-with-prometheus-and-tailscale-eba972dc19eb
+
 ---
 
 ## 04 04 2026 - Reproducible setup & monitoring v2
@@ -91,6 +131,9 @@ Entries are grouped by day, newest first. Each entry uses the following labels, 
 - Traefik switched to a **DaemonSet with hostPort** so cloudflared can route to any node
 - ArgoCD sync-waves redefined to avoid conflicts
 
+_References :_
+* https://github.com/argoproj/argo-cd/issues/14607
+
 ### Fixed
 - Cilium MTU issues on the Tailscale-backed HA cluster
 
@@ -100,6 +143,9 @@ Entries are grouped by day, newest first. Each entry uses the following labels, 
 
 ### Changed
 - **Cilium** replacing Flannel as CNI - eBPF datapath, better performance, and a great oportunity to really understand how a CNI works
+
+_References :_
+* https://oneuptime.com/blog/post/2026-03-14-install-cilium-on-k3s/view
 
 ---
 
@@ -111,6 +157,10 @@ The biggest infrastructure milestone so far
 - **High availability**: from a single control plane to **3 control-plane nodes**
 - ArgoCD **AppProjects** properly defined per domain (infra, monitoring, apps, …) with scoped destinations
 - ArgoCD metrics enabled
+
+_References :_
+* https://oneuptime.com/blog/post/2026-01-26-k3s-production-cluster/view
+* https://medium.com/@andrea.grillo96/manage-permitted-destination-of-an-argocd-project-cd8e73ac61f8
 
 ### Changed
 - Global repository structure redefined (bootstrap app separated, recursive directories abandoned where they proved fragile)
