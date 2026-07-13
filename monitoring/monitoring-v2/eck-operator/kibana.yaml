@@ -8,8 +8,10 @@ spec:
   count: 1
   elasticsearchRef:
     name: efk-elasticsearch
-  config:
-    server.publicBaseUrl: "http://localhost:5601"
+  http:
+    tls:
+      selfSignedCertificate:
+        disabled: true
   podTemplate:
     spec:
       containers:

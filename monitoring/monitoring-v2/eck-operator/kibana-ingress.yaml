@@ -7,7 +7,6 @@ metadata:
     argocd.argoproj.io/sync-wave: "2"
     kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/router.tls: "true"
-    traefik.ingress.kubernetes.io/service.serversscheme: https
 spec:
   rules:
     - host: kibana.mdlmr.fr
