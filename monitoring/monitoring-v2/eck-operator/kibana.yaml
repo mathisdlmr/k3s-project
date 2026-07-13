@@ -8,6 +8,8 @@ spec:
   count: 1
   elasticsearchRef:
     name: efk-elasticsearch
+  config:
+    server.publicBaseUrl: "https://kibana.mdlmr.fr"
   http:
     tls:
       selfSignedCertificate:
