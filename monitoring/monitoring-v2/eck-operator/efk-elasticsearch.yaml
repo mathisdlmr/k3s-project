@@ -1,0 +1,39 @@
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: efk-elasticsearch
+  namespace: monitoring-v2
+spec:
+  version: 8.12.2
+  nodeSets:
+  - name: default
+    count: 1
+    config:
+      node.roles: ["master", "data", "ingest"]
+      node.store.allow_mmap: false
+      xpack.ml.enabled: false 
+      xpack.security.enabled: true
+      xpack.watcher.enabled: false 
+    podTemplate:
+      spec:
+        containers:
+        - name: elasticsearch
+          resources:
+            requests:
+              memory: 1Gi
+              cpu: 200m 
+            limits:
+              memory: 1.5Gi 
+              cpu: 1000m
+          env:
+          - name: ES_JAVA_OPTS
+            value: "-Xms512m -Xmx512m" 
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 2Gi
