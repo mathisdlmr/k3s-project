@@ -54,12 +54,25 @@ spec:
               done
               echo "Elasticsearch is up !"
 
-              echo "Creating/updating user ${KIBANA_ADMIN_USERNAME} (role kibana_admin)..."
+              echo "Creating/updating role kibana_data_reader..."
+              curl -sf --cacert /mnt/es-certs/ca.crt -u "elastic:${ELASTIC_PASSWORD}" \
+                -X PUT "${ES_URL}/_security/role/kibana_data_reader" \
+                -H 'Content-Type: application/json' \
+                -d '{
+                  "indices": [
+                    {
+                      "names": ["logs-*", "fluent-bit-*"],
+                      "privileges": ["read", "view_index_metadata"]
+                    }
+                  ]
+                }'
+
+              echo "Creating/updating user ${KIBANA_ADMIN_USERNAME} (roles kibana_admin, kibana_data_reader)..."
               curl -sf --cacert /mnt/es-certs/ca.crt \
                 -u "elastic:${ELASTIC_PASSWORD}" \
                 -X POST "${ES_URL}/_security/user/${KIBANA_ADMIN_USERNAME}" \
                 -H 'Content-Type: application/json' \
-                -d "{\"password\": \"${KIBANA_ADMIN_PASSWORD}\", \"roles\": [\"kibana_admin\"], \"full_name\": \"Kibana Admin\"}"
+                -d "{\"password\": \"${KIBANA_ADMIN_PASSWORD}\", \"roles\": [\"kibana_admin\", \"kibana_data_reader\"], \"full_name\": \"Kibana Admin\"}"
 
               echo "Kibana admin user setup completed successfully !"
       volumes:
