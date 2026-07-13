@@ -5,7 +5,7 @@ metadata:
   namespace: argocd
 spec:
   sourceRepos:
-    - "*"
+    - https://github.com/mathisDlmr/k3s-project.git
   destinations:
     - name: "*"
       namespace: argocd
@@ -16,6 +16,4 @@ spec:
     - name: "*"
       namespace: affine
       server: "*"
-  clusterResourceWhitelist:
-    - group: "*"
-      kind: "*"
+  clusterResourceWhitelist: []

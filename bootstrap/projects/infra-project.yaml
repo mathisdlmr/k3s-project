@@ -5,7 +5,11 @@ metadata:
   namespace: argocd
 spec:
   sourceRepos:
-    - "*"
+    - https://github.com/mathisDlmr/k3s-project.git
+    - https://traefik.github.io/charts
+    - https://charts.longhorn.io
+    - https://charts.external-secrets.io
+    - https://charts.jetstack.io
   destinations:
     - name: "*"
       namespace: argocd
