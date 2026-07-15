@@ -11,6 +11,19 @@ Entries are grouped by day, newest first. Each entry uses the following labels, 
 
 ---
 
+## 15 07 2026 - New portfolio and fix k3s metrics scrapping
+
+### Added
+- **Portfolio** deployed on `website` namespace, created with HTML/CSS/JS and served by a classic Nginx
+
+### Fixed
+- **Kube-prometheus-stack** additionalScrapeConfigs for k3s control plane were fixed by using control plane IP instead of 127.0.0.1 because here localhost referenced prometheus-localhost
+
+### Removed
+- Old Website on `website` namespace, it was using NextJS, the design was not very good, and most of informations were not up-to-date anymore
+
+---
+
 ## 13 07 2026 - EFK Stack
 
 ### Added
