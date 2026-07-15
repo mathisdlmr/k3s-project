@@ -16,12 +16,9 @@ spec:
     spec:
       containers:
         - name: website
-          image: docker.io/mathisdlmr/website:latest
+          image: ghcr.io/mathisdlmr/portfolio:sha-6827a6f
           ports:
-            - containerPort: 3000
-          env:
-            - name: NODE_ENV
-              value: "production"
+            - containerPort: 80
           resources:
             requests:
               memory: "64Mi"
