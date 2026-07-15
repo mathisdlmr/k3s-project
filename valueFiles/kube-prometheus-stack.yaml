@@ -32,30 +32,35 @@ prometheus:
             requests:
               storage: 20Gi
     additionalScrapeConfigs:
-      - job_name: 'k3s-server'
-        static_configs:
-          - targets: ['localhost:10250']
-        scheme: https
-        tls_config:
-          insecure_skip_verify: true
       - job_name: 'k3s-controller-manager'
-        static_configs:
-          - targets: ['localhost:10257']
         scheme: https
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
         tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
           insecure_skip_verify: true
+        static_configs:
+          - targets:
+              - '100.112.35.79:10257'
+              - '100.126.60.86:10257'
+              - '100.113.113.100:10257'
       - job_name: 'k3s-scheduler'
-        static_configs:
-          - targets: ['localhost:10259']
         scheme: https
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
         tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
           insecure_skip_verify: true
+        static_configs:
+          - targets:
+              - '100.112.35.79:10259'
+              - '100.126.60.86:10259'
+              - '100.113.113.100:10259'
       - job_name: 'k3s-etcd'
+        scheme: http
         static_configs:
-          - targets: ['localhost:2381']
-        scheme: https
-        tls_config:
-          insecure_skip_verify: true
+          - targets:
+              - '100.112.35.79:2381'
+              - '100.126.60.86:2381'
+              - '100.113.113.100:2381'
     resources:
       requests:
         memory: "768Mi"
