@@ -1,28 +1,22 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: cert-manager
+  name: monitoring-v2
   namespace: argocd
   labels:
-    argocd.argoproj.io/instance: infra
-    app.kubernetes.io/part-of: infra
+    argocd.argoproj.io/instance: monitoring
+    app.kubernetes.io/part-of: monitoring
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: infra
-  sources:
-    - repoURL: https://github.com/mathisDlmr/k3s-project.git
-      targetRevision: main
-      ref: k3s-project
-    - repoURL: https://charts.jetstack.io
-      chart: cert-manager
-      targetRevision: v1.21.0
-      helm:
-        valueFiles:
-          - $k3s-project/valueFiles/cert-manager.yaml
+  project: monitoring
   destination:
     server: https://kubernetes.default.svc
-    namespace: infra
+    namespace: argocd
+  source:
+    repoURL: https://github.com/mathisDlmr/k3s-project.git
+    targetRevision: main
+    path: kubernetes/monitoring/monitoring-v2/
   syncPolicy:
     automated:
       selfHeal: true

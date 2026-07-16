@@ -1,11 +1,13 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: traefik
+  name: longhorn
   namespace: argocd
   labels:
     argocd.argoproj.io/instance: infra
     app.kubernetes.io/part-of: infra
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
@@ -13,22 +15,26 @@ spec:
   sources:
     - repoURL: https://github.com/mathisDlmr/k3s-project.git
       targetRevision: main
+      path: kubernetes/infra/longhorn
+    - repoURL: https://github.com/mathisDlmr/k3s-project.git
+      targetRevision: main
       ref: k3s-project
-    - repoURL: https://traefik.github.io/charts
-      chart: traefik
-      targetRevision: 38.0.2
+    - repoURL: https://charts.longhorn.io
+      chart: longhorn
+      targetRevision: 1.12.0
       helm:
         valueFiles:
-          - $k3s-project/valueFiles/traefik.yaml
+          - $k3s-project/kubernetes/valueFiles/longhorn.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: traefik
+    namespace: infra
   syncPolicy:
     automated:
       selfHeal: true
       prune: true
     syncOptions:
       - CreateNamespace=true
+      - ServerSideApply=true
     retry:
       limit: 5
       backoff:

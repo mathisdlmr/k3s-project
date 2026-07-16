@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: tempo
+  name: loki
   namespace: argocd
   labels:
     argocd.argoproj.io/instance: monitoring
@@ -15,11 +15,11 @@ spec:
       targetRevision: main
       ref: k3s-project
     - repoURL: https://grafana.github.io/helm-charts
-      chart: tempo
-      targetRevision: 1.24.4
+      chart: loki
+      targetRevision: 7.0.0
       helm:
         valueFiles:
-          - $k3s-project/valueFiles/tempo.yaml
+          - $k3s-project/kubernetes/valueFiles/loki.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring

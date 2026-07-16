@@ -1,28 +1,24 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: alloy
+  name: infra
   namespace: argocd
   labels:
-    argocd.argoproj.io/instance: monitoring
-    app.kubernetes.io/part-of: monitoring
+    app.kubernetes.io/managed-by: argocd
+    argocd.argoproj.io/instance: meta
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: monitoring
-  sources:
-    - repoURL: https://github.com/mathisDlmr/k3s-project.git
-      targetRevision: main
-      ref: k3s-project
-    - repoURL: https://grafana.github.io/helm-charts
-      chart: alloy
-      targetRevision: 1.10.1
-      helm:
-        valueFiles:
-          - $k3s-project/valueFiles/alloy.yaml
+  project: infra
   destination:
     server: https://kubernetes.default.svc
-    namespace: monitoring
+    namespace: argocd
+  source:
+    repoURL: https://github.com/mathisDlmr/k3s-project.git
+    targetRevision: main
+    path: kubernetes/infra/
   syncPolicy:
     automated:
       selfHeal: true

@@ -1,28 +1,28 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: argocd
+  name: fluent-operator
   namespace: argocd
   labels:
-    app.kubernetes.io/part-of: argocd
-    argocd.argoproj.io/instance: argocd-bootstrap
+    argocd.argoproj.io/instance: monitoring-v2
+    app.kubernetes.io/part-of: monitoring-v2
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: default
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: argocd
+  project: monitoring
   sources:
     - repoURL: https://github.com/mathisDlmr/k3s-project.git
       targetRevision: main
       ref: k3s-project
-    - repoURL: https://argoproj.github.io/argo-helm
-      chart: argo-cd
-      targetRevision: "10.1.3"
+    - repoURL: https://fluent.github.io/helm-charts
+      chart: fluent-operator
+      targetRevision: 4.2.0
       helm:
         valueFiles:
-          - $k3s-project/valueFiles/argocd.yaml
+          - $k3s-project/kubernetes/valueFiles/fluent-operator.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring-v2
   syncPolicy:
     automated:
       selfHeal: true

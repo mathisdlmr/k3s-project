@@ -1,22 +1,22 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: argocd-projects
+  name: efk-stack
   namespace: argocd
   labels:
-    app.kubernetes.io/part-of: argocd
-    argocd.argoproj.io/instance: argocd-bootstrap
+    argocd.argoproj.io/instance: monitoring-v2
+    app.kubernetes.io/part-of: monitoring-v2
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: default
+  project: monitoring
+  sources:
+    - repoURL: https://github.com/mathisDlmr/k3s-project.git
+      targetRevision: main
+      path: kubernetes/monitoring/monitoring-v2/efk-stack/
   destination:
     server: https://kubernetes.default.svc
-    namespace: argocd
-  source:
-    repoURL: https://github.com/mathisDlmr/k3s-project.git
-    targetRevision: main
-    path: bootstrap/projects
+    namespace: monitoring-v2
   syncPolicy:
     automated:
       selfHeal: true
@@ -24,7 +24,6 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
-      - ApplyOutOfSyncOnly=true
     retry:
       limit: 5
       backoff:

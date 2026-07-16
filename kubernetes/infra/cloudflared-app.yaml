@@ -1,33 +1,22 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: external-secrets
+  name: cloudflared
   namespace: argocd
   labels:
     argocd.argoproj.io/instance: infra
     app.kubernetes.io/part-of: infra
-  annotations:
-    argocd.argoproj.io/sync-wave: "-1"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: infra
-  sources:
-    - repoURL: https://github.com/mathisDlmr/k3s-project.git
-      targetRevision: main
-      path: infra/external-secrets/
-    - repoURL: https://github.com/mathisDlmr/k3s-project.git
-      targetRevision: main
-      ref: k3s-project
-    - repoURL: https://charts.external-secrets.io
-      chart: external-secrets
-      targetRevision: 2.7.0
-      helm:
-        valueFiles:
-          - $k3s-project/valueFiles/external-secrets.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: infra
+    namespace: argocd
+  source:
+    repoURL: https://github.com/mathisDlmr/k3s-project.git
+    targetRevision: main
+    path: kubernetes/infra/cloudflared/
   syncPolicy:
     automated:
       selfHeal: true

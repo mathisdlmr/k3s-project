@@ -1,22 +1,21 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: website
+  name: argocd-bootstrap
   namespace: argocd
   labels:
-    argocd.argoproj.io/instance: meta
-    app.kubernetes.io/part-of: meta
+    app.kubernetes.io/part-of: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: apps
+  project: default
   destination:
     server: https://kubernetes.default.svc
-    namespace: website
+    namespace: argocd
   source:
     repoURL: https://github.com/mathisDlmr/k3s-project.git
     targetRevision: main
-    path: apps/website/
+    path: kubernetes/bootstrap/
   syncPolicy:
     automated:
       selfHeal: true
@@ -24,6 +23,7 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
+      - ApplyOutOfSyncOnly=true
     retry:
       limit: 5
       backoff:

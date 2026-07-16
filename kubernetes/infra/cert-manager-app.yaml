@@ -1,28 +1,28 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: victoria-metrics
+  name: cert-manager
   namespace: argocd
   labels:
-    argocd.argoproj.io/instance: monitoring-v2
-    app.kubernetes.io/part-of: monitoring-v2
+    argocd.argoproj.io/instance: infra
+    app.kubernetes.io/part-of: infra
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: monitoring
+  project: infra
   sources:
     - repoURL: https://github.com/mathisDlmr/k3s-project.git
       targetRevision: main
       ref: k3s-project
-    - repoURL: https://victoriametrics.github.io/helm-charts
-      chart: victoria-metrics-single
-      targetRevision: 0.42.0
+    - repoURL: https://charts.jetstack.io
+      chart: cert-manager
+      targetRevision: v1.21.0
       helm:
         valueFiles:
-          - $k3s-project/valueFiles/victoria-metrics.yaml
+          - $k3s-project/kubernetes/valueFiles/cert-manager.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: monitoring-v2
+    namespace: infra
   syncPolicy:
     automated:
       selfHeal: true

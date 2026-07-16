@@ -1,28 +1,28 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: eck
+  name: argocd
   namespace: argocd
   labels:
-    argocd.argoproj.io/instance: monitoring-v2
-    app.kubernetes.io/part-of: monitoring-v2
+    app.kubernetes.io/part-of: argocd
+    argocd.argoproj.io/instance: argocd-bootstrap
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: monitoring
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
   sources:
     - repoURL: https://github.com/mathisDlmr/k3s-project.git
       targetRevision: main
       ref: k3s-project
-    - repoURL: https://helm.elastic.co
-      chart: eck-operator
-      targetRevision: 3.4.1
+    - repoURL: https://argoproj.github.io/argo-helm
+      chart: argo-cd
+      targetRevision: "10.1.3"
       helm:
         valueFiles:
-          - $k3s-project/valueFiles/eck-operator.yaml
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: monitoring-v2
+          - $k3s-project/kubernetes/valueFiles/argocd.yaml
   syncPolicy:
     automated:
       selfHeal: true
