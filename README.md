@@ -20,11 +20,22 @@ Finally, Longhorn replicates storage (PVCs) across all 3 nodes, so even if a nod
 
 In terms of virtual architecture, it can be explained as a layered stack:
 ```
-                                          Ubuntu
-                                        K3s & Cilium
-                                    ArgoCD, Helm & Renovate
-    Longhorn for volumes, ESO for secrets management, Network stack* & Monitoring Stack**
-Applications (backend for associations, open-source projects such as Immich or Affine, etc.)
+┌──────────────────────────────────────────────────────────────┐
+│ Application Layer                                            │
+│ -> Applications (Immich, Affine, backends, etc.)             │
+├──────────────────────────────────────────────────────────────┤
+│ Platform Services Layer                                      │
+│ -> Longhorn · External Secrets · Networking · Monitoring     │
+├──────────────────────────────────────────────────────────────┤
+│ Platform Management Layer                                    │
+│ -> ArgoCD · Helm · Renovate                                  │
+├──────────────────────────────────────────────────────────────┤
+│ Container Orchestration Layer                                │
+│ -> K3s · Cilium                                              │
+├──────────────────────────────────────────────────────────────┤
+│ Operating System Layer                                       │
+│ -> Ubuntu                                                    │
+└──────────────────────────────────────────────────────────────┘
 ```
 
 *The "Network stack" is made up of Traefik, cert-manager, and cloudflared (Cloudflare Tunnel).
