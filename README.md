@@ -21,20 +21,20 @@ Finally, Longhorn replicates storage (PVCs) across all 3 nodes, so even if a nod
 In terms of virtual architecture, it can be explained as a layered stack:
 ```
 ┌────────────────────────────────────────────────────┐
-│ Application Layer                                            │
-│ -> Applications (Immich, Affine, backends, etc.)             │
+│ Application Layer                                           │
+│ -> Applications (Immich, Affine, backends, etc.)            │
 ├────────────────────────────────────────────────────┤
-│ Platform Services Layer                                      │
-│ -> Longhorn · External Secrets · Networking* · Monitoring**  │
+│ Platform Services Layer                                     │
+│ -> Longhorn · External Secrets · Networking* · Monitoring** │
 ├────────────────────────────────────────────────────┤
-│ Platform Management Layer                                    │
-│ -> ArgoCD · Helm · Renovate                                  │
+│ Platform Management Layer                                   │
+│ -> ArgoCD · Helm · Renovate                                 │
 ├────────────────────────────────────────────────────┤
-│ Container Orchestration Layer                                │
-│ -> K3s · Cilium                                              │
+│ Container Orchestration Layer                               │
+│ -> K3s · Cilium                                             │
 ├────────────────────────────────────────────────────┤
-│ Operating System Layer                                       │
-│ -> Ubuntu                                                    │
+│ Operating System Layer                                      │
+│ -> Ubuntu                                                   │
 └────────────────────────────────────────────────────┘
 ```
 
