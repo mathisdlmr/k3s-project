@@ -1,168 +1,174 @@
 # K3S Homelab
 
-## Hello !
+Hey there, welcome to my personal k3s homelab !
 
-Ce projet c'est mon homelab k3s. L'objectif : héberger quelques apps perso et d'asso dans une infra qui tient la route — **GitOps-first**, **résiliente géographiquement**, et avec une **observabilité** poussée sur toutes les couches.
+This project was born during my internship at Padoa, where I discovered a new passion for infrastructure and the DevOps approach. Just before the internship started, I'd discovered Docker, Kubernetes, and ArgoCD, and I was already completely won over by these technologies. Once I started talking with my colleagues about other tools, and got to work with more of the tech stack used by the firm, I wanted to build my own cluster packed with cool technologies, both for fun and for learning. So here we are.
 
-## Architecture physique
+In short : this is about experimenting with cool technologies to build a resilient cluster, following the DevOps and GitOps approach, with full observability across the whole stack.
 
-Le cluster tourne sur **3 NUCs** répartis sur **2 maisons différentes** (une forme d'HA géographique maison). Ils sont interconnectés via un réseau **Tailscale** (VPN mesh), ce qui permet à Cilium de faire tourner son réseau VXLAN inter-pods à travers ce tunnel sécurisé.
+## Physical Architecture
 
+Because I study in Compiègne and my parents live near Lille, I saw the opportunity to build a fully resilient architecture, one that can survive even a network or power outage at one location.
+
+My cluster is built around a **k3s HA control-plane** made of **3 NUCs**, split across **2 different houses** (mine and my parents'). They're connected over a **Tailscale** network (mesh VPN), and I use Cilium as the CNI, routing the inter-pod VXLAN network through this tunnel. 
+
+To talk to one of the 3 Kubernetes API servers, a local HAProxy round-robins across the 3 control planes for HA access to the API server: if one node goes down, `kubectl`, ArgoCD, and all my other services keep running without interruption. 
+
+Finally, Longhorn replicates storage (PVCs) across all 3 nodes, so even if a node goes completely down, every service stays available.
+
+## Virtual Architecture
+
+In terms of virtual architecture, it can be explained as a layered stack:
 ```
-    Maison 1                                   Maison 2
-  ┌──────────────┐                          ┌──────────────┐
-  │  NUC 1       │◄────── Tailscale ────────►  NUC 2       │
-  │  control-    │          VPN             │  control-    │
-  │  plane       │                          │  plane       │
-  └──────┬───────┘                          └──────┬───────┘
-         │                                         │
-         └──────────────────┬──────────────────────┘
-                            │  Tailscale VPN
-                     ┌──────┴───────┐
-                     │  NUC 3       │
-                     │  control-    │
-                     │  plane       │
-                     └──────────────┘
-                            ▲
-                            │ (via Tailscale)
-                     ┌──────┴───────┐
-                     │  Mon PC      │
-                     │  HAProxy     │
-                     │  127.0.0.1   │
-                     │  :6443       │
-                     └──────────────┘
+                                          Ubuntu
+                                        K3s & Cilium
+                                    ArgoCD, Helm & Renovate
+    Longhorn for volumes, ESO for secrets management, Network stack* & Monitoring Stack**
+Applications (backend for associations, open-source projects such as Immich or Affine, etc.)
 ```
 
-Mon PC est également dans le réseau Tailscale. J'ai un **HAProxy local** qui fait du round-robin sur les 3 control-planes pour avoir un accès HA à l'API server depuis ma machine — si un noeud est down, kubectl continue de fonctionner.
+*The "Network stack" is made up of Traefik, cert-manager, and cloudflared (Cloudflare Tunnel).
 
-Côté réseau pods, Cilium tourne en mode **VXLAN tunnel** (MTU 1150 : 1200 imposé par Tailscale, minus 50 d'overhead VXLAN). etcd est en cluster natif k3s avec des snapshots automatiques toutes les 6h.
+**The "Monitoring stack" is made up of two stacks:
+* The Prometheus + Grafana Labs stack (Grafana, Alloy, Loki, Tempo)
+* The EFK stack (Elasticsearch, Fluent Bit, Kibana) + Victoria Metrics
+
+Running both is purely for learning purposes, as I want to be comfortable with a variety of tools and approaches (see [below](#full-observability) for more details).
+
+## Setup
+
+For the cluster, I went with a DevOps approach that's fully reproducible in just a few minutes.
+
+The cluster is first bootstrapped with Ansible, which runs from my laptop and configures each NUC into a (secured) node. All it takes is running `ansible-playbook ./ansible/site.yml`
+
+![Node configuration](./docs/schemas/setup/1-node-configuration.png)
+
+Once the setup is complete, here's the resulting architecture :
+
+![Architecture after node configuration](./docs/schemas/setup/1-nodes-configured.png)
+
+The next step is installing an ArgoCD Application that takes over management of the ArgoCD instance installed by Ansible, and handles deploying the rest of the repo through the `meta` application. For that, we run `kubectl apply -f ./kubernetes/bootstrap-app.yaml`
+
+![ArgoCD Setup](./docs/schemas/setup/2-argocd-setup.png)
+
+Finally, all that's left is pulling in the secrets. For that, we need to create a Kubernetes secret in the `infra` namespace called `infisical-universal-auth-credentials`, which lets External Secrets Operator authenticate with Infisical and then recreate every secret defined in the repo (logins, Cloudflare tunnel token, etc.).
+
+![Secrets recreation](./docs/schemas/setup/3-recreate-secrets.png)
+
+And there it is, the cluster is rebuilt from scratch!
+
+The services are then reachable online at `https://mdlmr.fr/*`. And for a bit more visibility into how that works, here's one last diagram ;)
+
+![Request flow](./docs/schemas/request-flow.png)
+
+## Maintenance - CI/CD and GitOps
+
+The cluster is driven by **ArgoCD** following a multi-level *app-of-apps* pattern (with sync-waves to guarantee deployment order: ArgoCD itself and its CRDs first, then infra, then monitoring, then the apps), and by **Renovate**, which automatically opens PRs to update Helm charts and Docker images (auto-merged for minor updates, manually reviewed for major ones).
+
+A GitHub Actions workflow, **Argo Diff Preview**, generates the full manifest diff (rendered Helm + Kustomize) and posts it as a comment on every PR. Handy for seeing the impact before merging :)
+
+<p style="display: flex; gap: 20px; justify-content: center;">
+  <img src="./docs/images/renovate.png" height="300" alt="Renovate PR" />
+  <img src="./docs/images/argo-diff-preview.png" height="300" alt="ArgoDiff Preview" />
+</p>
+
+## Full Observability
+
+Observability is handled by 2 complete stacks:
+* The Prometheus and Grafana Labs stack (Prometheus, Grafana, Alloy, Loki, Tempo), as well as
+* The EFK stack (Elasticsearch, Fluent Bit, Kibana) - Victoria Metrics - OTel
+
+Both monitoring stacks collect logs and metrics from all deployed services, while the tracing system is currently only used for the Ski'UT backend, where I implemented the OTel SDK to collect traces and inspect particularly slow requests (the bottleneck was usually database connection pooling or poorly factored Eloquent ORM operations).
+
+The point of running 2 monitoring stacks is purely for learning purposes, so I'm comfortable with the Grafana Labs stack as well as other widely used tools (Elasticsearch, Fluent Bit, etc.). Along those lines, I'm also planning to add Mimir and/or Thanos to my stack soon, along with Datadog.
+
+## Real-World Results
+
+In January 2026, this cluster handled load spikes in production from the Ski'UT booking mini-game - **averaging around 150 req/s and peaking at 200 req/s** - absorbed thanks to a Cloudflare cache configured on static assets (mainly images, CSS, and JS), Traefik running as a DaemonSet in front of the cluster, and load balancing tuned by an HPA that could scale from 1 to 3 backend containers under heavy load.
+
+![Ski'UT 2026 spot booking](./docs/images/shotgun-skiut.png)
+
+Under normal circumstances, the server also hosts my personal services (Affine as a Notion-like tool, Immich for photos, my personal website, etc.).
 
 ## Stack
 
 ### Infrastructure & Cluster
 
-| Outil | Rôle |
-|-------|------|
-| <img src="https://raw.githubusercontent.com/k3s-io/k3s/refs/heads/master/k3s.png" height="16"/> **k3s** | Distribution Kubernetes légère, base de tout |
-| <img src="https://raw.githubusercontent.com/cncf/artwork/main/projects/cilium/icon/color/cilium-icon-color.svg" height="16"/> **Cilium** | CNI eBPF, remplace kube-proxy, réseau VXLAN via Tailscale + Hubble |
-| **Tailscale** | VPN mesh inter-noeuds et accès depuis mon PC |
-| **etcd** | Consensus distribué pour l'HA (snapshots toutes les 6h, rétention 10) |
-| <img src="https://raw.githubusercontent.com/longhorn/website/master/src/img/logos/longhorn-icon-color.svg" height="16"/> **Longhorn** *(coming soon)* | Stockage distribué résilient, réplication cross-nodes, snapshots, backups |
+| Tool | Role |
+|------|------|
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/k3s.svg" height="16"/> **k3s** | Lightweight Kubernetes distribution running the cluster |
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/cilium.svg" height="16"/> **Cilium** | eBPF-based CNI, replaces kube-proxy, routes inter-pod traffic over the Tailscale tunnel |
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/tailscale-light.svg" height="16"/> **Tailscale** | Mesh VPN connecting the 3 nodes across 2 houses, plus my laptop |
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/haproxy.svg" height="16"/> **HAProxy** | Local load balancer, round-robins across the 3 control planes for HA API access |
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/ubuntu-linux-alt.png" height="16"/> **Ubuntu** | Base OS on every node |
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/longhorn.svg" height="16"/> **Longhorn** | Distributed block storage, replicates PVCs across all 3 nodes |
 
-### GitOps & Déploiement
+### Secrets Management
 
-| Outil | Rôle |
-|-------|------|
-| <img src="https://cdn.prod.website-files.com/5f10ed4c0ebf7221fb5661a5/5f2ba11e378c8f49e8b28486_argo.png" height="16"/> **ArgoCD** | CD GitOps, app-of-apps, sync auto avec self-heal et prune |
-| <img src="https://www.redhat.com/rhdc/managed-files/helm.svg" height="16"/> **Helm** | Packaging des charts (multi-source dans ArgoCD) |
-| **Sealed Secrets** | Secrets chiffrés dans Git, déchiffrés uniquement dans le cluster |
+| Tool | Role |
+|------|------|
+| <img src="https://external-secrets.io/latest/pictures/eso-round-logo.svg" height="16"/> **External Secrets Operator (ESO)** | Syncs secrets from Infisical into native Kubernetes Secrets |
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/infisical.svg" height="16"/> **Infisical** | Secrets manager backing ESO |
 
-### Ingress & Réseau
+### Networking & Ingress
 
-| Outil | Rôle |
-|-------|------|
-| <img src="https://raw.githubusercontent.com/traefik/traefik/master/docs/content/assets/img/traefik.logo.png" height="16"/> **Traefik** | Ingress controller en DaemonSet, hostPort 80/443 |
-| <img src="https://raw.githubusercontent.com/cert-manager/cert-manager/d53c0b9270f8cd90d908460d69502694e1838f5f/logo/logo-small.png" height="16"/> **cert-manager** | TLS automatique via Let's Encrypt (DNS-01 Cloudflare) |
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/cloudflare/cloudflare-original.svg" height="16"/> **Cloudflare Tunnel** | Tunnel sortant, zéro port ouvert sur la box |
+| Tool | Role |
+|------|------|
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/traefikproxy/traefikproxy-original.svg" height="16"/> **Traefik** | Ingress controller, runs as a DaemonSet on hostPort 80/443 |
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/cert-manager.svg" height="16"/> **cert-manager** | Automated TLS certificates via Let's Encrypt |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cloudflare/cloudflare-original.svg" height="16"/> **cloudflared** | Cloudflare Tunnel, exposes services with zero open ports |
 
-Le flux d'une requête externe :
-```
-Internet → Cloudflare (DNS + TLS) → cloudflared DaemonSet → Traefik → Service → Pod
-```
+### GitOps & CI/CD
 
-### Observabilité
+| Tool | Role |
+|------|------|
+| <img src="https://cdn.prod.website-files.com/5f10ed4c0ebf7221fb5661a5/5f2ba11e378c8f49e8b28486_argo.png" height="16"/> **ArgoCD** | GitOps continuous delivery, multi-level app-of-apps pattern with sync-waves |
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/helm.svg" height="16"/> **Helm** | Chart packaging, deployed as ArgoCD sources |
+| <img src="https://avatars.githubusercontent.com/u/38656520?s=20&v=4" height="16"/> **Renovate** | Automated PRs for Helm chart & image updates (auto-merged for minors) |
+| <img src="https://miro.medium.com/v2/resize:fit:1400/1*7qk0-4XwCKWQO0GU5Hu39w.png" height="16"/> **GitHub Actions** | Runs the Argo Diff Preview workflow on every PR |
 
-L'objectif à terme : une observabilité **complète** sur toutes les couches — infra, middleware, et backends applicatifs. Logs, métriques et traces centralisés dans Grafana.
+### Monitoring & Observability
 
-| Outil | Rôle |
-|-------|------|
-| <img src="https://raw.githubusercontent.com/prometheus/prometheus/main/documentation/images/prometheus-logo.svg" height="16"/> **Prometheus** | Scraping métriques cluster & apps (via kube-prometheus-stack) |
-| <img src="https://raw.githubusercontent.com/grafana/grafana/main/public/img/grafana_icon.svg" height="16"/> **Grafana** | Dashboards, point d'entrée unique pour logs / métriques / traces |
-| **Alertmanager** | Alertes |
-| <img src="https://loki-operator.dev/logo.png" height="16"/> **Loki** | Agrégation de logs |
-| **Grafana Alloy** | Collecteur unifié métriques + logs (remplace Promtail + agent Prometheus) |
-| <img src="https://grafana.com/static/assets/img/logos/tempo.svg" height="16"/> **Tempo** | Backend de traces distribuées (compatible OTLP) |
+| Tool | Role |
+|------|------|
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/prometheus/prometheus-original.svg" height="16"/> **Prometheus** | Metrics scraping across the cluster and apps (via kube-prometheus-stack) |
+| **Alertmanager** | Alerting |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/grafana/grafana-original.svg" height="16"/> **Grafana** | Dashboards, single entry point for logs, metrics, and traces |
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/alloy.svg" height="16"/> **Alloy** | Unified metrics + logs collector |
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/loki.svg" height="16"/> **Loki** | Log aggregation |
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/tempo.svg" height="16"/> **Tempo** | Distributed tracing backend (OTLP-compatible) |
+| <img src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/opentelemetry.svg" height="16"/> **OpenTelemetry (OTel)** | Tracing instrumentation, currently used in the Ski'UT backend |
+| <img src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/elasticsearch.svg" height="16"/> **Elasticsearch** | Log/metric storage for the EFK stack (via ECK Operator) |
+| <img src="https://res.cloudinary.com/canonical/image/fetch/f_auto,q_auto,fl_sanitize,w_800/https%3A%2F%2Fdashboard.snapcraft.io%2Fsite_media%2Fappmedia%2F2020%2F02%2Flogo-square.png" height="16"/> **Fluent Bit** | Log shipper for the EFK stack (via Fluent Operator) |
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/elastic-kibana.svg" height="16"/> **Kibana** | EFK stack dashboards |
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/victoriametrics-light.svg" height="16"/> **Victoria Metrics** | Metrics storage, used alongside the EFK stack |
 
-Les backends applicatifs (Ski'UT en tête) sont instrumentés avec **OpenTelemetry** pour envoyer leurs traces directement vers Tempo.
-
-### Applications
-
-| App | Stack |
-|-----|-------|
-| **Ski'UT** | Laravel + MySQL + ProxySQL + PhpMyAdmin + HPA/PDB + OTEL |
-| **Mon site** | Next.js |
-| **Affine** | Workspace collaboratif (Postgres + Redis) |
-
-## Organisation du repo
-
-Le repo est déployé directement par ArgoCD via un pattern **app-of-apps** en plusieurs niveaux :
-
-```
-bootstrap-app                  ← appliqué une seule fois à la main
-  └── meta                     ← app-of-apps racine
-        ├── infra              ← sync-wave: -1 (déployée en premier)
-        ├── monitoring
-        ├── skiut
-        ├── website
-        └── productivity
-```
-
-```
-k3s-project/
-├── bootstrap/              # Bootstrap ArgoCD + définitions des AppProjects
-├── meta/                   # App-of-apps (une ArgoCD App par dossier ci-dessous)
-├── infra/                  # Traefik, cert-manager, Sealed Secrets, Cloudflare Tunnel
-├── monitoring/             # kube-prometheus-stack, Loki, Alloy, Tempo
-├── apps/                   # Ski'UT, Website
-├── productivity/           # Affine
-├── valueFiles/             # Fichiers de valeurs Helm (séparés des apps)
-└── setup/                  # Scripts d'installation du cluster
-    └── ha-cluster/         # Init premier CP, join des autres, HAProxy local
-```
-
-La séquence de bootstrap au premier déploiement :
-
-```bash
-# 1. Sur le premier NUC
-./setup/ha-cluster/setup-init-ha-node.sh
-
-# 2. Sur chaque NUC suivant
-./setup/ha-cluster/setup-ha-node.sh --token=<TOKEN> --init-node-ip=<IP_TAILSCALE>
-
-# 3. Sur mon PC
-./setup/ha-cluster/setup-local-computer.sh --master-ips=IP1,IP2,IP3 --master-names=N1,N2,N3
-
-# 4. Bootstrap ArgoCD (fait automatiquement par setup-init-ha-node.sh)
-kubectl apply -f bootstrap-app.yaml
-# → ArgoCD sync tout le reste automatiquement
-```
-
-## CI/CD
-
-### <img src="https://avatars.githubusercontent.com/u/38656520?s=20&v=4" height="16"/> Renovate
-
-[Renovate](https://docs.renovatebot.com/) scanne automatiquement les charts Helm et les images Docker pour ouvrir des PRs de mise à jour. Les mises à jour mineures sont **auto-mergées**, les majeures passent en revue manuelle.
-
-### <img src="https://cdn.prod.website-files.com/5f10ed4c0ebf7221fb5661a5/5f2ba11e378c8f49e8b28486_argo.png" height="16"/> Argo Diff Preview
-
-Chaque PR déclenche un workflow GitHub Actions qui génère le **diff complet des manifests ArgoCD** (Helm rendu + Kustomize) et le poste directement en commentaire de la PR. Pratique pour savoir exactement ce qui va changer dans le cluster avant de merger, sans avoir à faire tourner ArgoCD localement.
-
----
+## Just because it looks cool
 
 <div style="display: flex; justify-content: space-evenly; align-items: center; flex-wrap: wrap; gap: 12px; padding: 10px 0;">
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg" height="45" alt="Linux" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bash/bash-original.svg" height="45" alt="Shell" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" height="45" alt="Git" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" height="45" alt="Docker" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/kubernetes/kubernetes-plain.svg" height="45" alt="Kubernetes" />
-  <img src="https://www.redhat.com/rhdc/managed-files/helm.svg" height="45" alt="Helm" />
-  <img src="https://cdn.prod.website-files.com/5f10ed4c0ebf7221fb5661a5/5f2ba11e378c8f49e8b28486_argo.png" height="45" alt="ArgoCD" />
-  <img src="https://raw.githubusercontent.com/traefik/traefik/master/docs/content/assets/img/traefik.logo.png" height="45" alt="Traefik" />
-  <img src="https://raw.githubusercontent.com/cert-manager/cert-manager/d53c0b9270f8cd90d908460d69502694e1838f5f/logo/logo-small.png" height="45" alt="cert-manager" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/cloudflare/cloudflare-original.svg" height="45" alt="Cloudflare" />
-  <img src="https://raw.githubusercontent.com/prometheus/prometheus/main/documentation/images/prometheus-logo.svg" height="45" alt="Prometheus" />
-  <img src="https://raw.githubusercontent.com/grafana/grafana/main/public/img/grafana_icon.svg" height="45" alt="Grafana" />
-  <img src="https://loki-operator.dev/logo.png" height="45" alt="Loki" />
-  <img src="https://grafana.com/static/assets/img/logos/tempo.svg" height="45" alt="Tempo" />
-  <img src="https://raw.githubusercontent.com/cncf/artwork/main/projects/cilium/icon/color/cilium-icon-color.svg" height="45" alt="Cilium" />
+  <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/k3s.svg" height="45"/>
+  <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/cilium.svg" height="45"/>
+  <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/tailscale-light.svg" height="45"/>
+  <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/haproxy.svg" height="45"/>
+  <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/ubuntu-linux-alt.png" height="45"/>
+  <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/longhorn.svg" height="45"/>
+  <img src="https://external-secrets.io/latest/pictures/eso-round-logo.svg" height="45"/>
+  <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/infisical.svg" height="45"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/traefikproxy/traefikproxy-original.svg" height="45"/>
+  <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/cert-manager.svg" height="45"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cloudflare/cloudflare-original.svg" height="45"/>
+  <img src="https://cdn.prod.website-files.com/5f10ed4c0ebf7221fb5661a5/5f2ba11e378c8f49e8b28486_argo.png" height="45"/>
+  <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/helm.svg" height="45"/>
+  <img src="https://avatars.githubusercontent.com/u/38656520?s=20&v=4" height="45"/>
+  <img src="https://miro.medium.com/v2/resize:fit:1400/1*7qk0-4XwCKWQO0GU5Hu39w.png" height="45"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/prometheus/prometheus-original.svg" height="45"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/grafana/grafana-original.svg" height="45"/>
+  <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/alloy.svg" height="45"/>
+  <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/loki.svg" height="45"/>
+  <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/tempo.svg" height="45"/>
+  <img src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/opentelemetry.svg" height="45"/>
+  <img src="https://cdn.jsdelivr.net/gh/selfhst/icons/svg/elasticsearch.svg" height="45"/>
+  <img src="https://res.cloudinary.com/canonical/image/fetch/f_auto,q_auto,fl_sanitize,w_800/https%3A%2F%2Fdashboard.snapcraft.io%2Fsite_media%2Fappmedia%2F2020%2F02%2Flogo-square.png" height="45"/>
+  <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/elastic-kibana.svg" height="45"/>
+  <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/victoriametrics-light.svg" height="45"/>
 </div>
