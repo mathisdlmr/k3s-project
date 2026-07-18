@@ -108,7 +108,7 @@ Under normal circumstances, the server also hosts my personal services (Affine a
 | Tool | Role |
 |------|------|
 | <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/k3s.svg" height="16"/> **k3s** | Lightweight Kubernetes distribution running the cluster |
-| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/cilium.svg" height="16"/> **Cilium** | eBPF-based CNI, replaces kube-proxy, routes inter-pod traffic over the Tailscale tunnel |
+| <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/cilium.svg" height="16"/> **Cilium** | eBPF-based CNI, replaces kube-proxy, routes inter-pod traffic over the Tailscale VPN |
 | <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/tailscale-light.svg" height="16"/> **Tailscale** | Mesh VPN connecting the 3 nodes across 2 houses, plus my laptop |
 | <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/haproxy.svg" height="16"/> **HAProxy** | Local load balancer, round-robins across the 3 control planes for HA API access |
 | <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/ubuntu-linux-alt.png" height="16"/> **Ubuntu** | Base OS on every node |
@@ -170,7 +170,7 @@ Under normal circumstances, the server also hosts my personal services (Affine a
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cloudflare/cloudflare-original.svg" height="45"/>
   <img src="https://cdn.prod.website-files.com/5f10ed4c0ebf7221fb5661a5/5f2ba11e378c8f49e8b28486_argo.png" height="45"/>
   <img src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/helm.svg" height="45"/>
-  <img src="https://avatars.githubusercontent.com/u/38656520?s=20&v=4" height="45"/>
+  <img src="https://avatars.githubusercontent.com/u/38656520" height="45"/>
   <img src="https://miro.medium.com/v2/resize:fit:1400/1*7qk0-4XwCKWQO0GU5Hu39w.png" height="45"/>
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/prometheus/prometheus-original.svg" height="45"/>
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/grafana/grafana-original.svg" height="45"/>
