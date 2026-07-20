@@ -11,6 +11,18 @@ Entries are grouped by day, newest first. Each entry uses the following labels, 
 
 ---
 
+## 20 07 2026 - Minor dependencies updates
+
+### Changed
+
+- Minor dependencies updates
+    - **argo-cd to v10.1.4**
+    - **external-secrets to v2.8.0**
+    - **loki to v7.1.0**
+    - **kube-prometheus-stack to v87.17.0**
+
+---
+
 ## 15 07 2026 - New portfolio and fix k3s metrics scrapping
 
 ### Added
