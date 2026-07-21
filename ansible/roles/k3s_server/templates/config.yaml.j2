@@ -10,24 +10,38 @@ node-ip: {{ tailscale_ip }}
 cluster-init: true
 {% endif %}
 
-disable:
-  - traefik
-  - servicelb
-  - kube-proxy
-
-flannel-backend: none
-disable-network-policy: true
-
 tls-san:
   - localhost
   - 127.0.0.1
 {% for host in groups['control_planes'] %}
   - {{ hostvars[host].tailscale_ip }}
 {% endfor %}
-{% if k3s_cluster_init %}
+
+disable:
+  - traefik
+  - servicelb
+  - kube-proxy
+  - local-storage
+
+flannel-backend: none
+disable-network-policy: true # because Cilium handles Network policies
+secrets-encryption: true # secrets are encrypted on etcd
 
 etcd-snapshot-schedule-cron: "{{ k3s_etcd_snapshot_cron }}"
 etcd-snapshot-retention: {{ k3s_etcd_snapshot_retention }}
+etcd-snapshot-compress: true
+etcd-expose-metrics: true
+
+kubelet-arg:
+- "kube-reserved=cpu=100m,memory=256Mi"
+- "system-reserved=cpu=100m,memory=256Mi"
+- "eviction-hard=memory.available<500Mi,nodefs.available<10%" # Kubelet starts evicting pods before the OS kills critical Kubernetes processes
+
+kube-apiserver-arg:
+- "audit-log-path=/var/log/k3s-audit.log"
+- "audit-policy-file=/etc/rancher/k3s/audit-policy.yaml"
+- "audit-log-maxage=7"
+- "audit-log-maxbackup=5"
+- "audit-log-maxsize=100"
 
 write-kubeconfig-mode: "0644"
-{% endif %}

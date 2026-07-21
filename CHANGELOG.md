@@ -18,6 +18,10 @@ Entries are grouped by day, newest first. Each entry uses the following labels, 
 - Create an Ansible project that make deployment easier and reproductible 
     - See `ansible/README.md` for more informations
 
+### Changed 
+
+- Redefine k3s config using this tutorial : https://oneuptime.com/blog/post/2026-03-20-k3s-server-options/view
+
 ---
 
 ## 20 07 2026 - Minor dependencies updates
