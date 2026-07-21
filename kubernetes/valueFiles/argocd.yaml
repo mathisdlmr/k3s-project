@@ -6,7 +6,6 @@ global:
 configs:
   params:
     server.insecure: "true"
-
   # Useful ressources : 
   # - https://argo-cd.readthedocs.io/en/stable/operator-manual/health/
   # - https://argo-cd.readthedocs.io/en/stable/user-guide/diffing/#system-level-configuration
@@ -45,6 +44,8 @@ configs:
         - .spec.dataFrom[]?.extract.decodingStrategy
         - .spec.dataFrom[]?.extract.metadataPolicy
         - .spec.dataFrom[]?.extract.nullBytePolicy
+  secret:
+    argocdServerAdminPassword: "$2a$10$AwlgeUSbvqFeZ7VbSX27L.N2zuaazc0Kkpo9JYDOAOE1w2IoxoPSG"
 
 controller:
   metrics:
