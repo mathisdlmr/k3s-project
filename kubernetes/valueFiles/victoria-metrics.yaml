@@ -3,7 +3,7 @@ server:
 
   persistentVolume:
     enabled: true
-    storageClass: local-path
+    storageClass: longhorn
     size: 10Gi
     accessModes:
       - ReadWriteOnce

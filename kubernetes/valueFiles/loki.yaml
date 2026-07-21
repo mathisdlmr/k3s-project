@@ -37,7 +37,7 @@ loki:
   persistence:
     enabled: true
     size: 10Gi
-    storageClassName: local-path
+    storageClassName: longhorn
   resources:
     requests:
       cpu: 100m

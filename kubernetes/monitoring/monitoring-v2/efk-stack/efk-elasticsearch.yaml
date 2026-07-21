@@ -32,8 +32,8 @@ spec:
     - metadata:
         name: elasticsearch-data
       spec:
-        accessModes:
-        - ReadWriteOnce
+        accessModes: [ReadWriteOnce]
+        storageClassName: longhorn
         resources:
           requests:
             storage: 2Gi
