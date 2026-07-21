@@ -1,0 +1,55 @@
+# roles/common/tasks/tailscale.yml
+# Install and configure Tailscale
+
+- name: Add Tailscale repository
+  ansible.builtin.deb822_repository:
+    name: tailscale
+    types: deb
+    uris: https://pkgs.tailscale.com/stable/ubuntu
+    suites: "{{ ansible_distribution_release }}"
+    components: main
+    signed_by: "https://pkgs.tailscale.com/stable/ubuntu/{{ ansible_distribution_release }}.noarch.gpg"
+
+- name: Install Tailscale
+  ansible.builtin.apt:
+    name: tailscale
+    state: present
+    update_cache: true
+
+- name: Enable and start Tailscale
+  ansible.builtin.systemd:
+    name: tailscaled
+    enabled: true
+    state: started
+
+- name: Verify Tailscaile status
+  ansible.builtin.command: tailscale status --json
+  register: _ts_status
+  changed_when: false
+
+- name: Connect to Tailscale account
+  ansible.builtin.command: tailscale up --ssh --authkey={{ tailscale_authkey }}
+  when:
+    - (_ts_status.stdout | from_json).BackendState != "Running"
+    - tailscale_authkey | length > 0
+  changed_when: true
+  no_log: true
+
+- name: Fail if there is a probleme
+  ansible.builtin.fail:
+    msg: >-
+      This node isn't connected to Tailscale, and `tailscale_authkey` is null
+      Either define tailscale_authkey (on group_vars/all.yml, using ansible-vault),
+      either manually use `sudo tailscale up --ssh` on the node, then run playbook
+  when:
+    - (_ts_status.stdout | from_json).BackendState != "Running"
+    - tailscale_authkey | length == 0
+
+- name: Register Tailscale IP of the node
+  ansible.builtin.command: tailscale ip -4
+  register: _ts_ip
+  changed_when: false
+
+- name: Display Tailscale IP of the node
+  ansible.builtin.debug:
+    msg: "Tailscale IP : {{ _ts_ip.stdout | trim }}"

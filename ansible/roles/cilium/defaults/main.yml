@@ -1,0 +1,4 @@
+# roles/cilium/defaults/main.yml
+
+cilium_cli_download_url: https://github.com/cilium/cilium-cli/releases/latest/download/cilium-linux-amd64.tar.gz
+kubeconfig: /etc/rancher/k3s/k3s.yaml

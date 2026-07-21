@@ -1,0 +1,26 @@
+# roles/common/tasks/packages.yml
+# Upgrade system and install base packages
+
+- name: Update APT cache and upgrade system
+  ansible.builtin.apt:
+    update_cache: true
+    upgrade: dist
+
+- name: Install base packages
+  ansible.builtin.apt:
+    name:
+      - openssh-server
+      - ufw
+      - unattended-upgrades
+      - curl
+      - lynis
+      - python3-debian
+    state: present
+
+- name: Enable unattended-upgrades
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    content: |
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+    mode: "0644"

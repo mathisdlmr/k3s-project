@@ -1,0 +1,5 @@
+# roles/argocd_bootstrap/defaults/main.yml
+
+kubeconfig: /etc/rancher/k3s/k3s.yaml
+argocd_values_file: "{{ playbook_dir }}/../../valueFiles/argocd.yaml"
+bootstrap_app_file: "{{ playbook_dir }}/../../bootstrap-app.yaml"

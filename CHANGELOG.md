@@ -11,6 +11,15 @@ Entries are grouped by day, newest first. Each entry uses the following labels, 
 
 ---
 
+## 21 07 2026 - Finally deploying a v1 of Ansible setup
+
+### Added
+
+- Create an Ansible project that make deployment easier and reproductible 
+    - See `ansible/README.md` for more informations
+
+---
+
 ## 20 07 2026 - Minor dependencies updates
 
 ### Changed

@@ -1,0 +1,29 @@
+# roles/common/tasks/audit.yml
+# Final verifications and run Lynis if enabled
+
+- name: List opened ports
+  ansible.builtin.command: ss -tulnp
+  register: _open_ports
+  changed_when: false
+
+- name: Firewall status
+  ansible.builtin.command: ufw status verbose
+  register: _ufw_status
+  changed_when: false
+
+- name: Security summary of the node
+  ansible.builtin.debug:
+    msg: "{{ (_open_ports.stdout_lines + [''] + _ufw_status.stdout_lines) }}"
+
+- name: Lynis audit
+  ansible.builtin.command: lynis audit system --quick
+  register: _lynis
+  changed_when: false
+  when: run_lynis_audit | bool
+  tags: [audit]
+
+- name: Lynis report
+  ansible.builtin.debug:
+    msg: "{{ _lynis.stdout_lines }}"
+  when: run_lynis_audit | bool
+  tags: [audit]

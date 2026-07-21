@@ -1,0 +1,60 @@
+# roles/argocd_bootstrap/tasks/main.yml
+# Install ArgoCD using Helm and then create the bootstrap-app that deploy the rest of the repository
+
+- name: Install Helm
+  ansible.builtin.shell: >-
+    curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  args:
+    creates: /usr/local/bin/helm
+
+- name: Copy ArgoCD valueFile to the node
+  ansible.builtin.copy:
+    src: "{{ argocd_values_file }}"
+    dest: /tmp/argocd-values.yaml
+    mode: "0644"
+
+- name: Copy Bootstrap app to the node 
+  ansible.builtin.copy:
+    src: "{{ bootstrap_app_file }}"
+    dest: /tmp/bootstrap-app.yaml
+    mode: "0644"
+
+- name: Add Argo-Helm repository to Helm
+  ansible.builtin.command: helm repo add argo https://argoproj.github.io/argo-helm --force-update
+  environment:
+    KUBECONFIG: "{{ kubeconfig }}"
+  changed_when: false
+
+- name: Install ArgoCD
+  ansible.builtin.command: >-
+    helm upgrade --install argocd argo/argo-cd
+    -n argocd --create-namespace
+    -f /tmp/argocd-values.yaml
+  environment:
+    KUBECONFIG: "{{ kubeconfig }}"
+  changed_when: true
+
+- name: Wait ArgoCD to be ready
+  ansible.builtin.command: >-
+    k3s kubectl rollout status deployment/argocd-server -n argocd --timeout=180s
+  changed_when: false
+
+- name: Deploy Bootstrap application
+  ansible.builtin.command: k3s kubectl apply -f /tmp/bootstrap-app.yaml
+  register: _bootstrap
+  changed_when: "'unchanged' not in _bootstrap.stdout"
+
+- name: Fetch initial ArgoCD secret
+  ansible.builtin.command: >-
+    k3s kubectl -n argocd get secret argocd-initial-admin-secret
+    -o jsonpath={.data.password}
+  register: _argocd_pwd
+  failed_when: false
+  changed_when: false
+
+- name: Display ArgoCD infos
+  ansible.builtin.debug:
+    msg: >-
+      ArgoCD admin password : {{ (_argocd_pwd.stdout | b64decode)
+      if _argocd_pwd.rc == 0 else 'secret initial déjà supprimé' }}
+      - accès via : kubectl port-forward svc/argocd-server -n argocd 8080:443

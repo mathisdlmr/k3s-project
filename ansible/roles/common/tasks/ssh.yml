@@ -1,0 +1,34 @@
+# roles/common/tasks/ssh.yml
+# Only allow SSH from the host with ssh_public_key as referred on group_vars
+
+- name: Verifyssh_public_key
+  ansible.builtin.assert:
+    that:
+      - ssh_public_key is defined
+      - "'changeme' not in ssh_public_key"
+    fail_msg: "ssh_public_key on group_vars/all.yml muste be valid "
+
+- name: Authorize registered SSH key for {{ ansible_user }}
+  ansible.posix.authorized_key:
+    user: "{{ ansible_user }}"
+    key: "{{ ssh_public_key }}"
+    state: present
+
+- name: Delete cloud-init config from sshd (`PasswordAuthentication yes`)
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d/50-cloud-init.conf
+    state: absent
+  notify: Restart ssh
+
+- name: Enable drop-in for SSH-hardening
+  ansible.builtin.copy:
+    dest: /etc/ssh/sshd_config.d/99-hardening.conf
+    content: |
+      PermitRootLogin no
+      PasswordAuthentication no
+      PubkeyAuthentication yes
+      MaxAuthTries 3
+      LoginGraceTime 30
+    mode: "0644"
+    validate: /usr/sbin/sshd -T -f %s
+  notify: Restart ssh

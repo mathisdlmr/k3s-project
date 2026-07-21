@@ -1,0 +1,33 @@
+{% if not k3s_cluster_init %}
+server: https://{{ hostvars[groups['control_planes'][0]].tailscale_ip }}:6443
+token: {{ hostvars[groups['control_planes'][0]].k3s_token }}
+
+{% endif %}
+node-name: {{ k3s_node_name }}
+node-ip: {{ tailscale_ip }}
+{% if k3s_cluster_init %}
+
+cluster-init: true
+{% endif %}
+
+disable:
+  - traefik
+  - servicelb
+  - kube-proxy
+
+flannel-backend: none
+disable-network-policy: true
+
+tls-san:
+  - localhost
+  - 127.0.0.1
+{% for host in groups['control_planes'] %}
+  - {{ hostvars[host].tailscale_ip }}
+{% endfor %}
+{% if k3s_cluster_init %}
+
+etcd-snapshot-schedule-cron: "{{ k3s_etcd_snapshot_cron }}"
+etcd-snapshot-retention: {{ k3s_etcd_snapshot_retention }}
+
+write-kubeconfig-mode: "0644"
+{% endif %}

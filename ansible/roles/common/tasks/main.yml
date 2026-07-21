@@ -1,0 +1,19 @@
+# roles/common/tasks/main.yml
+
+- name: Import packages tasks
+  ansible.builtin.import_tasks: packages.yml
+
+- name: Import ssh tasks
+  ansible.builtin.import_tasks: ssh.yml
+
+- name: Import kernel tasks
+  ansible.builtin.import_tasks: kernel.yml
+
+- name: Import tailscale tasks
+  ansible.builtin.import_tasks: tailscale.yml
+
+- name: Import firewall tasks
+  ansible.builtin.import_tasks: firewall.yml
+
+- name: Import audit tasks
+  ansible.builtin.import_tasks: audit.yml

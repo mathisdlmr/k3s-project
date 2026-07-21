@@ -1,0 +1,41 @@
+# groupe_vars/all.yml
+# Must be crypted using `ansible-vault encrypt groupe_vars/all.yml` if we want to save it online
+
+# ------------------------------------------------
+# Acces & Security
+# ------------------------------------------------
+
+ansible_user: ubuntu
+
+# SSH public key we want to register on .ssh/authorized_keys/ on each nodes
+ssh_public_key: "ssh-ed25519 AAAAchangeme"
+
+# Tailscale Auth Key (https://login.tailscale.com/admin/settings/keys)
+tailscale_authkey: "tskey-auth-..."
+
+# Networks allowed by UFW
+lan_cidr: 192.168.0.0/16
+pod_cidr: 10.0.0.0/8 # cluster-pool Cilium : pod -> host
+
+# Must run Lynis at the end of the setup ?
+run_lynis_audit: false
+
+# ------------------------------------------------
+# k3s
+# ------------------------------------------------
+
+k3s_etcd_snapshot_cron: "0 */6 * * *"
+k3s_etcd_snapshot_retention: 10
+
+# ------------------------------------------------
+# Cilium
+# ------------------------------------------------
+
+cilium_install_flags:
+  - --set kubeProxyReplacement=true
+  - --set k8sServiceHost=127.0.0.1
+  - --set k8sServicePort=6443
+  - --set routingMode=tunnel
+  - --set tunnelProtocol=vxlan
+  - --set hubble.relay.enabled=true
+  - --set hubble.ui.enabled=true

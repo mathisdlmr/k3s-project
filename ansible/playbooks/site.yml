@@ -1,0 +1,39 @@
+# playbooks/site.yml
+# Master playbook that applies all roles to all hosts
+
+- name: Prepare k3s nodes (Requirements, UFW, inotify, etc.)
+  hosts: control_planes
+  become: true
+  roles:
+    - role: common
+    - role: disable_cstates # NUC with a 5825U CPU keept crashing when going from idle to full load, this role disables C-states to avoid this issue
+      when: "'5825U' in (ansible_processor | join(' ')) or (force_cstate_fix | default(false))"
+
+- name: Collect Tailscale IPs
+  hosts: control_planes
+  become: true
+  tasks:
+    - name: Get Tailscale IP
+      ansible.builtin.command: tailscale ip -4
+      register: _ts_ip
+      changed_when: false
+    - name: Save Tailscale IP as a fact
+      ansible.builtin.set_fact:
+        tailscale_ip: "{{ _ts_ip.stdout | trim }}"
+
+- name: Bootstrap first Control Plane
+  hosts: "{{ groups['control_planes'][0] }}"
+  become: true
+  roles:
+    - role: k3s_server
+      k3s_cluster_init: true
+    - role: cilium
+    - role: argocd_bootstrap
+
+- name: Other Control Planes join the first one
+  hosts: "control_planes:!{{ groups['control_planes'][0] }}"
+  become: true
+  serial: 1
+  roles:
+    - role: k3s_server
+      k3s_cluster_init: false

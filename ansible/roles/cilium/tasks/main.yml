@@ -1,0 +1,29 @@
+# roles/cilium/tasks/main.yml
+# Download Cilium CLI and install Cilium on the cluster
+
+- name: Télécharger la CLI Cilium
+  ansible.builtin.unarchive:
+    src: "{{ cilium_cli_download_url }}"
+    dest: /usr/local/bin
+    remote_src: true
+    creates: /usr/local/bin/cilium
+
+- name: Vérifier si Cilium est déjà installé dans le cluster
+  ansible.builtin.command: k3s kubectl -n kube-system get daemonset cilium
+  register: _cilium_ds
+  failed_when: false
+  changed_when: false
+
+- name: Installer Cilium
+  ansible.builtin.command: >-
+    cilium install {{ cilium_install_flags | join(' ') }}
+  environment:
+    KUBECONFIG: "{{ kubeconfig }}"
+  when: _cilium_ds.rc != 0
+  changed_when: true
+
+- name: Attendre que Cilium soit prêt
+  ansible.builtin.command: cilium status --wait
+  environment:
+    KUBECONFIG: "{{ kubeconfig }}"
+  changed_when: false
