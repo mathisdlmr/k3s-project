@@ -10,6 +10,7 @@ spec:
     - https://charts.longhorn.io
     - https://charts.external-secrets.io
     - https://charts.jetstack.io
+    - https://helm.cilium.io
   destinations:
     - name: "*"
       namespace: argocd
