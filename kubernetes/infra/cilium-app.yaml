@@ -14,7 +14,7 @@ spec:
     - repoURL: https://github.com/mathisDlmr/k3s-project.git
       targetRevision: main
       ref: k3s-project
-    - repoURL: https://helm.cilium.io/
+    - repoURL: https://helm.cilium.io
       chart: cilium
       targetRevision: 1.19.1
       helm:
