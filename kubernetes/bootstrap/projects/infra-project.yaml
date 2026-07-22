@@ -24,6 +24,9 @@ spec:
     - name: "*"
       namespace: traefik
       server: "*"
+    - name: "*"
+      namespace: cilium-secrets
+      server: "*"
   clusterResourceWhitelist:
     - group: "*"
       kind: "*"
