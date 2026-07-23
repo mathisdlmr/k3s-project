@@ -16,7 +16,7 @@ spec:
       ref: k3s-project
     - repoURL: https://helm.cilium.io
       chart: cilium
-      targetRevision: 1.19.1
+      targetRevision: 1.19.6
       helm:
         valueFiles:
           - $k3s-project/kubernetes/valueFiles/cilium.yaml
