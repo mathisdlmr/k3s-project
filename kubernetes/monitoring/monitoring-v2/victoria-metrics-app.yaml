@@ -16,7 +16,7 @@ spec:
       ref: k3s-project
     - repoURL: https://victoriametrics.github.io/helm-charts
       chart: victoria-metrics-single
-      targetRevision: 0.42.0
+      targetRevision: 0.43.0
       helm:
         valueFiles:
           - $k3s-project/kubernetes/valueFiles/victoria-metrics.yaml
