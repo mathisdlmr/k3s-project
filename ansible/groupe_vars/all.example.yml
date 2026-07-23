@@ -32,6 +32,9 @@ k3s_etcd_snapshot_retention: 10
 # ------------------------------------------------
 
 cilium_install_flags:
+  - --version=1.19.6
+  - --namespace cilium
+  - --create-namespace
   - --set kubeProxyReplacement=true
   - --set k8sServiceHost=127.0.0.1
   - --set k8sServicePort=6443

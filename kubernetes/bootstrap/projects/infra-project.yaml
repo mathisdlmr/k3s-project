@@ -19,10 +19,10 @@ spec:
       namespace: infra
       server: "*"
     - name: "*"
-      namespace: kube-system
+      namespace: traefik
       server: "*"
     - name: "*"
-      namespace: traefik
+      namespace: cilium
       server: "*"
     - name: "*"
       namespace: cilium-secrets
