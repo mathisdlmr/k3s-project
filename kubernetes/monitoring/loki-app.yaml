@@ -14,9 +14,9 @@ spec:
     - repoURL: https://github.com/mathisDlmr/k3s-project.git
       targetRevision: main
       ref: k3s-project
-    - repoURL: https://grafana.github.io/helm-charts
+    - repoURL: https://grafana-community.github.io/helm-charts
       chart: loki
-      targetRevision: 7.1.0
+      targetRevision: 18.5.4
       helm:
         valueFiles:
           - $k3s-project/kubernetes/valueFiles/loki.yaml
