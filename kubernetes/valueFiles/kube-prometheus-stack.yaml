@@ -7,6 +7,17 @@ crds:
 defaultRules:
   create: true
 
+# k3s doesn't provide access to metrics like k8s
+# Must use additionalScrapeConfig to scrape each ControllerManager/Etcd/Scheduller
+kubeControllerManager:
+  enabled: false
+kubeEtcd:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeProxy:
+  enabled: false # Replaced by Cilium
+
 prometheus:
   prometheusSpec:
     replicas: 1
