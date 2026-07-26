@@ -1,0 +1,13 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cloudflared-monitor
+  namespace: infra
+spec:
+  selector:
+    matchLabels:
+      app: cloudflared-tunnel
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 30s
