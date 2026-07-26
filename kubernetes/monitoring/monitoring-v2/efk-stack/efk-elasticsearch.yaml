@@ -36,7 +36,3 @@ spec:
         resources:
           requests:
             storage: 16Gi
-  monitoring:
-    metrics:
-      elasticsearch:
-        enabled: true
