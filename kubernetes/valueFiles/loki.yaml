@@ -71,3 +71,9 @@ memcached:
 memberlist:
   service:
     enabled: false
+
+monitoring:
+  serviceMonitor:
+    enabled: true
+  selfMonitoring:
+    enabled: false 

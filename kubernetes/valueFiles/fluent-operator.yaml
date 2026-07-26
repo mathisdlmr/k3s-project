@@ -9,6 +9,8 @@ operator:
     requests:
       cpu: 10m
       memory: 20Mi
+  serviceMonitor:
+    enable: true
 
 fluentbit:
   enable: true
@@ -19,6 +21,8 @@ fluentbit:
     requests:
       cpu: 10m
       memory: 25Mi
+  serviceMonitor:
+    enable: true
   additionalVolumes:
     - name: es-ca-cert
       secret:

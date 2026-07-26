@@ -23,7 +23,12 @@ spec:
             - --no-autoupdate
             - --config
             - /etc/cloudflared/config/config.yaml
+            - --metrics
+            - 0.0.0.0:9090
             - run
+          ports:
+            - name: metrics
+              containerPort: 9090
           env:
             - name: TUNNEL_TOKEN
               valueFrom:

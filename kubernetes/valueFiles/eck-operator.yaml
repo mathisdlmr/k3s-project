@@ -18,4 +18,4 @@ webhook:
 config:
   logVerbosity: "0"
   metrics:
-    port: 9090 
+    port: 9090

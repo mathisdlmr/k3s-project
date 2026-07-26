@@ -4,3 +4,7 @@ resources:
   requests:
     memory: "64Mi"
     cpu: "50m"
+
+prometheus:
+  servicemonitor:
+    enabled: true
