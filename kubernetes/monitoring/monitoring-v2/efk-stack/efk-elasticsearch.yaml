@@ -12,7 +12,6 @@ spec:
       node.roles: ["master", "data", "ingest"] # dev purpose, single node cluster with all roles
       node.store.allow_mmap: false  # nmap restricted by default on kube
       xpack.ml.enabled: false       # saves ~500MB RAM in dev
-      xpack.security.enabled: true
       xpack.watcher.enabled: false 
     podTemplate:
       spec:
