@@ -46,6 +46,7 @@ configs:
         - .spec.dataFrom[]?.extract.nullBytePolicy
   secret:
     argocdServerAdminPassword: "$2a$10$AwlgeUSbvqFeZ7VbSX27L.N2zuaazc0Kkpo9JYDOAOE1w2IoxoPSG"
+    argocdServerAdminPasswordMtime: "2026-07-26T00:00:00Z"
 
 controller:
   metrics:
