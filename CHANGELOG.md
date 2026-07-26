@@ -11,16 +11,31 @@ Entries are grouped by day, newest first. Each entry uses the following labels, 
 
 ---
 
+## 26 07 2026 - Major cluster monitoring review
+
+### Changed
+
+- Remove every ServiceMonitor used for control plane monitoring, and use additionalScrapeConfig instead, as k3s doesn't deploy a resource for each element of the control plane (scheduler, api-server, etc.) like k8s
+- Redefine k3s config for
+    - etcd exposed metrics,
+    - kubelet configuration to avoid Kubernetes resources being OOM Killed,
+    - and Api Server giving audit logs
+- Enable ServiceMonitor for every service when it's possible (Cilium, Traefik, Alloy, etc.)
+- Also switch Loki and Alloy deprecated Helm chart from grafana.github.io to grafana-community.github.io
+
+_References :_
+* https://oneuptime.com/blog/post/2026-03-20-k3s-server-options/view
+* https://blog.zwindler.fr/2023/09/15/k3s-ajouter-monitoring/
+
+---
+
 ## 21 07 2026 - Finally deploying a v1 of Ansible setup
 
 ### Added
 
-- Create an Ansible project that make deployment easier and reproductible 
+- Create an Ansible project that make deployment easier and reproductible
     - See `ansible/README.md` for more informations
-
-### Changed 
-
-- Redefine k3s config using this tutorial : https://oneuptime.com/blog/post/2026-03-20-k3s-server-options/view
+- Cilium is now re-declared on ArgoCD infra application so that Renovate can update Cilium
 
 ---
 
