@@ -2,6 +2,9 @@ Kubernetes: true
 
 operator:
   enable: true
+  extraArgs:
+    - --metrics-bind-address=:8080
+    - --metrics-secure=false
   resources:
     limits:
       cpu: 50m
