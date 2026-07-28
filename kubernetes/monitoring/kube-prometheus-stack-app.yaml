@@ -16,6 +16,10 @@ spec:
       path: kubernetes/monitoring/kube-prometheus-stack/
       directory:
         recurse: true
+        exclude: "grafana-dashboards/**"
+    - repoURL: https://github.com/mathisDlmr/k3s-project.git
+      targetRevision: main
+      path: kubernetes/monitoring/kube-prometheus-stack/grafana-dashboards
     - repoURL: https://github.com/mathisDlmr/k3s-project.git
       targetRevision: main
       ref: k3s-project
