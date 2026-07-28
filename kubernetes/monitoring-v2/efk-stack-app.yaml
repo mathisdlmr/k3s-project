@@ -13,7 +13,7 @@ spec:
   sources:
     - repoURL: https://github.com/mathisDlmr/k3s-project.git
       targetRevision: main
-      path: kubernetes/monitoring/monitoring-v2/efk-stack/
+      path: kubernetes/monitoring-v2/efk-stack/
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring-v2
