@@ -95,6 +95,10 @@ grafana:
       type: tempo
       url: http://tempo.monitoring.svc.cluster.local:3200
       access: proxy
+  sidecar:
+    dashboards:
+      provider:
+        foldersFromFilesStructure: true
 
 prometheus-node-exporter:
   fullnameOverride: node-exporter

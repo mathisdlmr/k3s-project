@@ -1,0 +1,17 @@
+# https://kubeprometheusstack.com/blog/kube-prometheus-stack-grafana-dashboards/
+# https://stackoverflow.com/questions/60987524/how-to-deploy-grafana-dashboard-with-side-car-and-group-the-dashboard-with-speci
+{{- range $path, $file := .Files.Glob "dashboards/**/*.json" }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ base $path | trimSuffix ".json" }}
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+  annotations:
+    k8s-sidecar-target-directory: {{ dir $path | trimPrefix "dashboards/" }}
+data:
+  {{ base $path }}: |
+{{ $.Files.Get $path | indent 4 }}
+{{- end }}
