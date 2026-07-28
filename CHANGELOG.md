@@ -11,6 +11,15 @@ Entries are grouped by day, newest first. Each entry uses the following labels, 
 
 ---
 
+## 28 07 2026 - Observability update in Kube-Prometheus-Stack
+
+### Added
+
+- Kube-Prometheus-Stack app can now deploy `AlertmanagerConfig`, Grafana dashboards, `PodMonitor`, `Probe`, `PrometheusRule`, `ScrapeConfig`, `ServiceMonitor`
+- A Helm Chart has been created on `kubernetes/monitoring/kube-prometheus-stack/grafana-dashboards` to deploy each dashboard on a separated ConfigMap, and asked Grafana to replicate folder structure of the repo 
+
+---
+
 ## 26 07 2026 - Major cluster monitoring review
 
 ### Changed
