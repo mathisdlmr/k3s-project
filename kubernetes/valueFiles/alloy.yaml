@@ -64,6 +64,18 @@ alloy:
         }
       }
 
+      loki.relabel "logs_integrations_integrations_alloy_health" {
+        rule {
+          replacement = constants.hostname
+          target_label  = "instance"
+        }
+        rule {
+          target_label = "job"
+          replacement  = "integrations/alloy"
+        }
+        forward_to = [loki.write.default.receiver]
+      }
+
       otelcol.receiver.otlp "otlp_receiver" {
         grpc {
           endpoint = "0.0.0.0:4317"

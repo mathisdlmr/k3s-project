@@ -1,16 +1,7 @@
-apiVersion: v1
-kind: Secret
-metadata:
-  name: alertmanager-slack
-  namespace: monitoring
-type: Opaque
-data:
-  webhook: BASE64_ENCODED_HOOK # webhook (base64)
----
 apiVersion: monitoring.coreos.com/v1alpha1
 kind: AlertmanagerConfig
 metadata:
-  name: slack-config
+  name: alertmanager-slack-config
   namespace: monitoring
   labels:
     alertmanagerConfig: example
@@ -22,6 +13,6 @@ spec:
     - name: "slack"
       slackConfigs:
         - apiURL:
-            name: alertmanager-slack
+            name: alertmanager-slack-webhook-secret
             key: webhook
           channel: "#alerts"
