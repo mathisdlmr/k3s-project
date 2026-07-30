@@ -11,6 +11,15 @@ Entries are grouped by day, newest first. Each entry uses the following labels, 
 
 ---
 
+## 30 07 2026 - Grafana Dashboards and PrometheusRules
+
+### Added
+
+- Multiple Grafana dashboard found online to visualise metrics of each deployed components (cilium, traefik, etc.)
+- Multiple PrometheusRule and AlertManagerConfig to send Slack alerts when a component have an unexepected behavior
+
+---
+
 ## 28 07 2026 - Observability update in Kube-Prometheus-Stack
 
 ### Added
