@@ -36,6 +36,7 @@ metrics:
   prometheus:
     serviceMonitor:
       enabled: true
+    disableAPICheck: true # to avoid ArgoDiff Preview failure
 
 tracing:
   otlp:
