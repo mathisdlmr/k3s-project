@@ -8,11 +8,23 @@ metadata:
 spec:
   route:
     groupBy: ["job"]
-    receiver: "slack"
+    receiver: "slack-warning"
+    routes:
+      - matchers:
+          - name: severity
+            value: critical
+            matchType: "="
+        receiver: "slack-critical"
   receivers:
-    - name: "slack"
+    - name: "slack-critical"
       slackConfigs:
         - apiURL:
             name: alertmanager-slack-webhook-secret
-            key: webhook
-          channel: "#alerts"
+            key: webhook-critical
+          channel: "#alerts-critical"
+    - name: "slack-warning"
+      slackConfigs:
+        - apiURL:
+            name: alertmanager-slack-webhook-secret
+            key: webhook-warning
+          channel: "#alerts-warning"
