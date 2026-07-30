@@ -1,3 +1,4 @@
+---
 prometheus:
   enabled: true
   serviceMonitor:

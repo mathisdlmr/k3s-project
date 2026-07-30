@@ -1,5 +1,7 @@
+---
 name: ArgoCD Diff Preview
 
+# yamllint disable-line rule:truthy
 on:
   pull_request:
     paths-ignore:

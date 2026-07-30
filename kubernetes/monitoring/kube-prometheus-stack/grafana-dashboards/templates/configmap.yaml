@@ -1,5 +1,6 @@
 # https://kubeprometheusstack.com/blog/kube-prometheus-stack-grafana-dashboards/
 # https://stackoverflow.com/questions/60987524/how-to-deploy-grafana-dashboard-with-side-car-and-group-the-dashboard-with-speci
+---
 {{- range $path, $file := .Files.Glob "dashboards/**/*.json" }}
 ---
 apiVersion: v1

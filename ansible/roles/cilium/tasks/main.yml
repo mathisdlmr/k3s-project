@@ -1,6 +1,7 @@
 # roles/cilium/tasks/main.yml
 # Download Cilium CLI and install Cilium on the cluster
 
+---
 - name: Télécharger la CLI Cilium
   ansible.builtin.unarchive:
     src: "{{ cilium_cli_download_url }}"

@@ -1,6 +1,7 @@
 # roles/common/tasks/audit.yml
 # Final verifications and run Lynis if enabled
 
+---
 - name: List opened ports
   ansible.builtin.command: ss -tulnp
   register: _open_ports

@@ -1,3 +1,4 @@
+---
 apiVersion: elasticsearch.k8s.elastic.co/v1
 kind: Elasticsearch
 metadata:
@@ -6,33 +7,33 @@ metadata:
 spec:
   version: 8.12.2
   nodeSets:
-  - name: default
-    count: 1
-    config:
-      node.roles: ["master", "data", "ingest"] # dev purpose, single node cluster with all roles
-      node.store.allow_mmap: false  # nmap restricted by default on kube
-      xpack.ml.enabled: false       # saves ~500MB RAM in dev
-      xpack.watcher.enabled: false 
-    podTemplate:
-      spec:
-        containers:
-        - name: elasticsearch
-          resources:
-            requests:
-              memory: 1Gi
-              cpu: 200m 
-            limits:
-              memory: 1.5Gi 
-              cpu: 1000m
-          env:
-          - name: ES_JAVA_OPTS
-            value: "-Xms512m -Xmx512m" # 50% of allocated memory for Java heap https://www.elastic.co/docs/reference/elasticsearch/jvm-settings#set-jvm-heap-size
-    volumeClaimTemplates:
+    - name: default
+      count: 1
+      config:
+        node.roles: ["master", "data", "ingest"] # dev purpose, single node cluster with all roles
+        node.store.allow_mmap: false  # nmap restricted by default on kube
+        xpack.ml.enabled: false       # saves ~500MB RAM in dev
+        xpack.watcher.enabled: false
+      podTemplate:
+        spec:
+          containers:
+            - name: elasticsearch
+              resources:
+                requests:
+                  memory: 1Gi
+                  cpu: 200m
+                limits:
+                  memory: 1.5Gi
+                  cpu: 1000m
+              env:
+                - name: ES_JAVA_OPTS
+                  value: "-Xms512m -Xmx512m" # 50% of allocated memory for Java heap https://www.elastic.co/docs/reference/elasticsearch/jvm-settings#set-jvm-heap-size
+  volumeClaimTemplates:
     - metadata:
         name: elasticsearch-data
       spec:
         accessModes:
-        - ReadWriteOnce
+          - ReadWriteOnce
         resources:
           requests:
             storage: 16Gi

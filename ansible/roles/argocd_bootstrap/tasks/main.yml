@@ -1,6 +1,7 @@
 # roles/argocd_bootstrap/tasks/main.yml
 # Install ArgoCD using Helm and then create the bootstrap-app that deploy the rest of the repository
 
+---
 - name: Install Helm
   ansible.builtin.shell: >-
     curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
@@ -13,7 +14,7 @@
     dest: /tmp/argocd-values.yaml
     mode: "0644"
 
-- name: Copy Bootstrap app to the node 
+- name: Copy Bootstrap app to the node
   ansible.builtin.copy:
     src: "{{ bootstrap_app_file }}"
     dest: /tmp/bootstrap-app.yaml

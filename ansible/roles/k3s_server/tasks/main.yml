@@ -1,13 +1,14 @@
 # roles/k3s_server/tasks/main.yml
 # Install k3s, use the `k3s_cluster_init` boolean to define if it's the init node or an other node
 
+---
 - name: Create {{ k3s_config_dir }}
   ansible.builtin.file:
     path: "{{ k3s_config_dir }}"
     state: directory
     mode: "0755"
 
-- name: Deploy k3s config 
+- name: Deploy k3s config
   ansible.builtin.template:
     src: config.yaml.j2
     dest: "{{ k3s_config_dir }}/config.yaml"

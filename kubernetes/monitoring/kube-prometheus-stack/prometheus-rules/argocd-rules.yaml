@@ -1,3 +1,4 @@
+---
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
@@ -15,6 +16,7 @@ spec:
             severity: warning
           annotations:
             summary: "Application ArgoCD {{ $labels.name }} désynchronisée depuis 30min"
+            # yamllint disable-line rule:line-length
             description: "L'application {{ $labels.name }} (projet {{ $labels.project }}) n'est plus en sync_status=Synced, vérifier un potentiel drift ou un échec de sync automatique."
 
         - alert: ArgoCDAppUnhealthy

@@ -1,3 +1,4 @@
+---
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -36,7 +37,7 @@ spec:
             - |
               set -eu
               ELASTIC_PASSWORD=$(cat /mnt/elastic-user/elastic)
- 
+
               echo "Waiting for Elasticsearch..."
               i=0
               until curl -s -o /dev/null \
@@ -53,7 +54,7 @@ spec:
                 sleep 10
               done
               echo "Elasticsearch is up !"
- 
+
               echo "Creating/updating role fluentbit_writer..."
               curl -sf --cacert /mnt/es-certs/ca.crt -u "elastic:${ELASTIC_PASSWORD}" \
                 -X PUT "${ES_URL}/_security/role/fluentbit_writer" \
@@ -67,13 +68,13 @@ spec:
                     }
                   ]
                 }'
- 
+
               echo "Creating/updating user ${FLUENTBIT_USERNAME}..."
               curl -sf --cacert /mnt/es-certs/ca.crt -u "elastic:${ELASTIC_PASSWORD}" \
                 -X POST "${ES_URL}/_security/user/${FLUENTBIT_USERNAME}" \
                 -H 'Content-Type: application/json' \
                 -d "{\"password\": \"${FLUENTBIT_PASSWORD}\", \"roles\": [\"fluentbit_writer\"], \"full_name\": \"Fluent Bit\"}"
- 
+
               echo "Fluent Bit user setup completed successfully !"
       volumes:
         - name: elastic-user

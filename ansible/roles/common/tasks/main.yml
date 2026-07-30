@@ -1,5 +1,6 @@
 # roles/common/tasks/main.yml
 
+---
 - name: Import packages tasks
   ansible.builtin.import_tasks: packages.yml
 

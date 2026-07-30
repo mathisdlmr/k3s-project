@@ -1,3 +1,4 @@
+---
 global:
   image:
     repository: ghcr.io/mathisdlmr/argocd
@@ -6,7 +7,7 @@ global:
 configs:
   params:
     server.insecure: "true"
-  # Useful ressources : 
+  # Useful ressources :
   # - https://argo-cd.readthedocs.io/en/stable/operator-manual/health/
   # - https://argo-cd.readthedocs.io/en/stable/user-guide/diffing/#system-level-configuration
   cm:

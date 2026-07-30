@@ -1,6 +1,7 @@
 # roles/common/tasks/tailscale.yml
 # Install and configure Tailscale
 
+---
 - name: Add Tailscale repository
   ansible.builtin.deb822_repository:
     name: tailscale

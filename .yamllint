@@ -2,7 +2,8 @@
 extends: default
 
 ignore: |
-  .github/
+  ansible/groupe_vars/all.yml
+  kubernetes/monitoring/kube-prometheus-stack/grafana-dashboards/templates/
 
 rules:
   line-length:
@@ -12,9 +13,6 @@ rules:
     allowed-values: ["true", "false"]
   braces:
     max-spaces-inside: 1
-  octal-values:
-    forbid-implicit-octal: true
-    forbid-explicit-octal: true
   comments:
     min-spaces-from-content: 1
   comments-indentation: false

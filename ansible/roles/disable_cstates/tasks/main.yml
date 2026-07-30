@@ -1,6 +1,7 @@
 # roles/disable_cstates/tasks
 # Limit C-states to the first layer to avoid some CPU to crash going from idle to full load
 
+---
 - name: Add processor.max_cstate=1 to the GRUB command-line
   ansible.builtin.replace:
     path: /etc/default/grub
