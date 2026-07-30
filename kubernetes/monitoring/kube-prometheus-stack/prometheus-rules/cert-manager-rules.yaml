@@ -1,0 +1,45 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cert-manager-rules
+  labels:
+    role: alert-rules
+spec:
+  groups:
+    - name: cert-manager.rules
+      rules:
+        - alert: CertManagerCertificateExpiringSoon
+          expr: (certmanager_certificate_expiration_timestamp_seconds - time()) < 7 * 24 * 3600
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "Certificat {{ $labels.name }} ({{ $labels.exported_namespace }}) expire dans moins de 7 jours"
+            description: "Le certificat {{ $labels.name }} n'a pas été renouvelé automatiquement, vérifier cert-manager et l'issuer associé."
+
+        - alert: CertManagerCertificateExpiringCritical
+          expr: (certmanager_certificate_expiration_timestamp_seconds - time()) < 24 * 3600
+          for: 15m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Certificat {{ $labels.name }} ({{ $labels.exported_namespace }}) expire dans moins de 24h"
+            description: "Renouvellement automatique probablement en échec, action manuelle nécessaire avant expiration."
+
+        - alert: CertManagerCertificateNotReady
+          expr: certmanager_certificate_ready_status{condition="False"} == 1
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Certificat {{ $labels.name }} ({{ $labels.exported_namespace }}) non Ready depuis 15min"
+            description: "cert-manager n'arrive pas à émettre/renouveler ce certificat."
+
+        - alert: CertManagerReconcileErrors
+          expr: increase(controller_runtime_reconcile_errors_total{job=~"cert-manager|cainjector"}[15m]) > 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Erreurs de reconcile sur {{ $labels.job }}"
+            description: "{{ $labels.job }} rencontre des erreurs de reconcile répétées depuis 10min."

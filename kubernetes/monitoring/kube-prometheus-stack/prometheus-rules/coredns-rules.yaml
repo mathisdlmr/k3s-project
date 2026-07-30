@@ -1,0 +1,40 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: coredns-rules
+  labels:
+    role: alert-rules
+spec:
+  groups:
+    - name: coredns.rules
+      rules:
+        - alert: CoreDNSPanicking
+          expr: increase(coredns_panics_total[15m]) > 0
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "CoreDNS ({{ $labels.pod }}) a paniqué"
+            description: "Au moins un panic CoreDNS détecté depuis 15min, la résolution DNS du cluster peut être interrompue."
+
+        - alert: CoreDNSForwardHealthcheckBroken
+          expr: increase(coredns_forward_healthcheck_broken_total[15m]) > 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "CoreDNS ({{ $labels.pod }}) : healthcheck forward cassé"
+            description: "Tous les upstreams DNS configurés sont down depuis 10min, plus aucune résolution externe n'est possible."
+
+        - alert: CoreDNSHighErrorRate
+          expr: |
+            sum(rate(coredns_dns_responses_total{rcode=~"SERVFAIL|REFUSED"}[5m]))
+            /
+            sum(rate(coredns_dns_responses_total[5m]))
+            > 0.1
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Plus de 10% de réponses DNS en erreur"
+            description: "Le taux de réponses SERVFAIL/REFUSED dépasse 10% depuis 10min."

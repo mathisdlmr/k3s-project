@@ -1,0 +1,45 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: tempo-rules
+  labels:
+    role: alert-rules
+spec:
+  groups:
+    - name: tempo.rules
+      rules:
+        - alert: TempoIngesterFlushFailures
+          expr: increase(tempo_ingester_failed_flushes_total[15m]) > 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Tempo ({{ $labels.pod }}) : échecs de flush ingester"
+            description: "Des blocks de traces n'arrivent pas à être flush vers le backend depuis 10min, risque de perte de traces."
+
+        - alert: TempoReceiverRefusingSpans
+          expr: increase(tempo_receiver_refused_spans[15m]) > 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Tempo refuse des spans en entrée"
+            description: "Le receiver OTLP de Tempo refuse des spans depuis 10min (limites de charge atteintes ou payload invalide)."
+
+        - alert: TempoDiscardingSpans
+          expr: increase(tempo_discarded_spans_total[15m]) > 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Tempo discard des spans"
+            description: "Tempo droppe des spans reçus depuis 10min (rate limiting interne ou erreur de traitement)."
+
+        - alert: TempoCompactionErrors
+          expr: increase(tempodb_compaction_errors_total[30m]) > 0
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Tempo : erreurs de compaction"
+            description: "Des erreurs de compaction des blocks sont survenues depuis 30min, surveiller la croissance du stockage de traces."

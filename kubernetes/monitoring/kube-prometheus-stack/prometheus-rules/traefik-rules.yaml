@@ -1,0 +1,43 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: traefik-rules
+  labels:
+    role: alert-rules
+spec:
+  groups:
+    - name: traefik.rules
+      rules:
+        - alert: TraefikHighErrorRate
+          expr: |
+            sum(rate(traefik_service_requests_total{code=~"5.."}[5m]))
+            /
+            sum(rate(traefik_service_requests_total[5m]))
+            > 0.05
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Plus de 5% de réponses 5xx sur Traefik"
+            description: "Le taux d'erreurs serveur (5xx) renvoyées par les services derrière Traefik dépasse 5% depuis 10min."
+
+        - alert: TraefikConfigReloadFailure
+          expr: traefik_config_last_reload_success == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Traefik ({{ $labels.pod }}) n'arrive plus à recharger sa config"
+            description: "Le dernier rechargement dynamique de la config Traefik a échoué, vérifier les IngressRoute/Middleware récemment modifiés."
+
+        - alert: TraefikHighRequestLatency
+          expr: |
+            histogram_quantile(0.99,
+              sum(rate(traefik_entrypoint_request_duration_seconds_bucket[5m])) by (le, entrypoint)
+            ) > 2
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Latence p99 élevée sur l'entrypoint {{ $labels.entrypoint }}"
+            description: "Le p99 de latence des requêtes dépasse 2s depuis 10min sur cet entrypoint."

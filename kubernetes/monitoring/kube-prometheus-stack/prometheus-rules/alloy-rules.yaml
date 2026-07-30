@@ -1,0 +1,36 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: alloy-rules
+  labels:
+    role: alert-rules
+spec:
+  groups:
+    - name: alloy.rules
+      rules:
+        - alert: AlloyConfigLoadFailed
+          expr: alloy_config_last_load_successful == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Alloy ({{ $labels.pod }}) : dernier chargement de config en échec"
+            description: "La dernière River config appliquée à Alloy a échoué, il tourne potentiellement sur une config obsolète."
+
+        - alert: AlloyConfigLoadFailuresIncreasing
+          expr: increase(alloy_config_load_failures_total[15m]) > 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Alloy ({{ $labels.pod }}) : échecs répétés de chargement de config"
+            description: "Plusieurs échecs de chargement de config Alloy depuis 10min."
+
+        - alert: AlloyNoRunningComponents
+          expr: alloy_component_controller_running_components == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Alloy ({{ $labels.pod }}) n'a plus aucun composant actif"
+            description: "Plus aucun composant River (logs/traces) ne tourne sur ce pod Alloy, la collecte est interrompue."

@@ -1,0 +1,45 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: fluent-bit-rules
+  labels:
+    role: alert-rules
+spec:
+  groups:
+    - name: fluent-bit.rules
+      rules:
+        - alert: FluentBitOutputErrors
+          expr: increase(fluentbit_output_errors_total[15m]) > 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Fluent Bit ({{ $labels.pod }}) : erreurs d'envoi vers l'output"
+            description: "Fluent Bit n'arrive pas à envoyer certains logs vers Elasticsearch depuis 10min."
+
+        - alert: FluentBitOutputRetriesFailedHigh
+          expr: increase(fluentbit_output_retries_failed_total[15m]) > 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Fluent Bit ({{ $labels.pod }}) : retries d'envoi définitivement échoués"
+            description: "Des logs sont définitivement perdus après épuisement des retries vers l'output depuis 10min."
+
+        - alert: FluentBitInputPaused
+          expr: fluentbit_input_ingestion_paused == 1
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Fluent Bit ({{ $labels.pod }}) : ingestion en pause"
+            description: "L'input Fluent Bit est en pause depuis 10min, généralement car le buffer de stockage est saturé."
+
+        - alert: FluentBitStorageOverlimit
+          expr: fluentbit_input_storage_overlimit == 1
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Fluent Bit ({{ $labels.pod }}) : buffer de stockage au-delà de la limite"
+            description: "Le stockage tampon (mem/filesystem) dépasse la limite configurée depuis 10min, des logs risquent d'être droppés."

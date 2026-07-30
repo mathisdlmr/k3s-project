@@ -1,0 +1,27 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: fluent-operator-rules
+  labels:
+    role: alert-rules
+spec:
+  groups:
+    - name: fluent-operator.rules
+      rules:
+        - alert: FluentOperatorReconcileErrors
+          expr: increase(controller_runtime_reconcile_errors_total{job="fluent-operator"}[15m]) > 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "fluent-operator : erreurs de reconcile"
+            description: "fluent-operator rencontre des erreurs de reconcile répétées depuis 10min (ClusterOutput/FluentBit CRDs)."
+
+        - alert: FluentOperatorWorkqueueBacklog
+          expr: workqueue_depth{job="fluent-operator"} > 10
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "fluent-operator : backlog de reconciliation important"
+            description: "La workqueue de fluent-operator accumule plus de 10 items depuis 15min, le reconcile prend du retard."

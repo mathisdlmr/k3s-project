@@ -1,0 +1,45 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: argocd-rules
+  labels:
+    role: alert-rules
+spec:
+  groups:
+    - name: argocd.rules
+      rules:
+        - alert: ArgoCDAppNotSynced
+          expr: argocd_app_info{sync_status!="Synced"} == 1
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Application ArgoCD {{ $labels.name }} désynchronisée depuis 30min"
+            description: "L'application {{ $labels.name }} (projet {{ $labels.project }}) n'est plus en sync_status=Synced, vérifier un potentiel drift ou un échec de sync automatique."
+
+        - alert: ArgoCDAppUnhealthy
+          expr: argocd_app_info{health_status=~"Degraded|Missing"} == 1
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Application ArgoCD {{ $labels.name }} en {{ $labels.health_status }} depuis 15min"
+            description: "L'application {{ $labels.name }} (projet {{ $labels.project }}) est en mauvaise santé selon ArgoCD."
+
+        - alert: ArgoCDSyncFailed
+          expr: increase(argocd_app_sync_total{phase=~"Failed|Error"}[30m]) > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Sync ArgoCD en échec pour {{ $labels.name }}"
+            description: "Au moins une tentative de synchronisation a échoué pour {{ $labels.name }} au cours des 30 dernières minutes."
+
+        - alert: ArgoCDRepoServerErrors
+          expr: increase(argocd_git_lsremote_fail_total[15m]) > 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "argocd-repo-server n'arrive pas à joindre le dépôt Git"
+            description: "Des ls-remote Git ont échoué depuis 10min, vérifier la connectivité GitHub ou les credentials du repo."

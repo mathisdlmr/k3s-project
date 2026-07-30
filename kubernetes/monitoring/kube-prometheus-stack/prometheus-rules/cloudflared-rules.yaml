@@ -1,0 +1,27 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cloudflared-rules
+  labels:
+    role: alert-rules
+spec:
+  groups:
+    - name: cloudflared.rules
+      rules:
+        - alert: CloudflaredTunnelDown
+          expr: cloudflared_tunnel_ha_connections == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "cloudflared ({{ $labels.pod }}) n'a plus aucune connexion HA active"
+            description: "Le tunnel Cloudflare est down depuis 5min : les services exposés via Cloudflare Tunnel ne sont plus joignables depuis l'extérieur."
+
+        - alert: CloudflaredHighErrorRate
+          expr: increase(cloudflared_tunnel_request_errors[15m]) > 10
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "cloudflared ({{ $labels.pod }}) remonte beaucoup d'erreurs de requêtes"
+            description: "Plus de 10 erreurs de requêtes via le tunnel depuis 15min."

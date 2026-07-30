@@ -1,0 +1,49 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: loki-rules
+  labels:
+    role: alert-rules
+spec:
+  groups:
+    - name: loki.rules
+      rules:
+        - alert: LokiHighErrorRate
+          expr: |
+            sum(rate(loki_request_duration_seconds_count{status_code=~"5.."}[5m]))
+            /
+            sum(rate(loki_request_duration_seconds_count[5m]))
+            > 0.05
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Plus de 5% de réponses 5xx sur Loki"
+            description: "Le taux d'erreurs serveur sur l'API Loki (push/query) dépasse 5% depuis 10min."
+
+        - alert: LokiIngesterWALDiskFull
+          expr: increase(loki_ingester_wal_disk_full_failures_total[15m]) > 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Loki ({{ $labels.pod }}) : disque plein pour le WAL"
+            description: "Le WAL de l'ingester Loki n'arrive plus à écrire par manque d'espace disque, risque de perte de logs récents."
+
+        - alert: LokiDiscardingSamples
+          expr: increase(loki_discarded_samples_total[15m]) > 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Loki discard des logs entrants"
+            description: "Loki rejette des lignes de log depuis 10min (rate limit atteint ou labels hors limites), vérifier les limites configurées."
+
+        - alert: LokiWriteFailures
+          expr: increase(loki_write_failures_logged_total[15m]) > 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Loki : échecs d'écriture"
+            description: "Des écritures ont échoué côté Loki depuis 10min."

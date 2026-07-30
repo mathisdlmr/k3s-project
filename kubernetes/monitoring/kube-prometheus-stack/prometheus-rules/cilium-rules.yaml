@@ -1,0 +1,54 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cilium-rules
+  labels:
+    role: alert-rules
+spec:
+  groups:
+    - name: cilium.rules
+      rules:
+        - alert: CiliumControllersFailing
+          expr: cilium_controllers_failing > 0
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $labels.pod }} : des controllers Cilium sont en échec"
+            description: "{{ $value }} controller(s) internes de l'agent Cilium échouent en boucle depuis 15min."
+
+        - alert: CiliumEndpointStuckRegenerating
+          expr: cilium_endpoint_state{endpoint_state=~"regenerating|waiting-to-regenerate"} > 0
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Endpoints Cilium bloqués en régénération sur {{ $labels.pod }}"
+            description: "Des endpoints n'arrivent pas à terminer leur régénération réseau depuis 15min (règles réseau potentiellement pas appliquées)."
+
+        - alert: CiliumHighDropRate
+          expr: sum by (node) (rate(cilium_drop_count_total[5m])) > 20
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Taux de drop réseau élevé sur le node {{ $labels.node }}"
+            description: "Cilium droppe plus de 20 paquets/s en moyenne depuis 10min sur ce node, vérifier les policies réseau."
+
+        - alert: CiliumOperatorErrors
+          expr: increase(cilium_operator_errors_warnings_total[15m]) > 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Erreurs sur cilium-operator"
+            description: "cilium-operator remonte des erreurs/warnings depuis 10min (IPAM, identities, garbage collection...)."
+
+        - alert: HubbleFlowsProcessingStalled
+          expr: rate(hubble_flows_processed_total[5m]) == 0
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Hubble ({{ $labels.pod }}) ne traite plus aucun flow"
+            description: "Aucun flow réseau n'est observé par Hubble depuis 15min, l'observabilité réseau est potentiellement aveugle."
