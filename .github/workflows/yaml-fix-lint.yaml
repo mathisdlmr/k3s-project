@@ -29,8 +29,9 @@ jobs:
           pip install yamllint yamlfixer-opt-nc
 
       - name: Format YAML files
+        # List directory to avoid modifying .github/ yaml files as yamlfixer doesn't seems to support `ignore` from .yamllint config
         run: |
-          yamlfixer -c .yamllint --recurse -1 .
+          yamlfixer -c .yamllint --recurse -1 ansible/ kubernetes/
 
       - name: Lint YAML files
         run: |
@@ -44,7 +45,7 @@ jobs:
           title: "📝 Auto-Format YAML files"
           body: |
             ## 📝 Auto-Format YAML files
-            
+
             This PR has been created to fix YAML files that doesn't follow the `.yamllint` rules
           branch: bot/yaml-format
           delete-branch: true
