@@ -1,0 +1,23 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: k3s-scheduler
+  namespace: monitoring
+spec:
+  jobName: k3s-scheduler
+  scheme: https
+  authorization:
+    credentials:
+      name: kube-prometheus-stack-prometheus-token
+      key: token
+  tlsConfig:
+    insecureSkipVerify: true
+    ca:
+      configMap:
+        name: kube-root-ca.crt
+        key: ca.crt
+  staticConfigs:
+    - targets:
+        - '100.112.35.79:10259'
+        - '100.126.60.86:10259'
+        - '100.113.113.100:10259'

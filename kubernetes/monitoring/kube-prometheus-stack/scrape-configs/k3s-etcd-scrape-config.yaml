@@ -1,0 +1,13 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: k3s-etcd
+  namespace: monitoring
+spec:
+  jobName: k3s-etcd
+  scheme: http
+  staticConfigs:
+    - targets:
+        - '100.112.35.79:2381'
+        - '100.126.60.86:2381'
+        - '100.113.113.100:2381'

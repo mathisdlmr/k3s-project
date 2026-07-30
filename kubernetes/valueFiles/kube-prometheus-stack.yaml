@@ -8,7 +8,7 @@ defaultRules:
   create: true
 
 # k3s doesn't provide access to metrics like k8s
-# Must use additionalScrapeConfig to scrape each ControllerManager/Etcd/Scheduller
+# Must use ScrapeConfig CRDs (see scrape-configs/) to scrape each ControllerManager/Etcd/Scheduller
 kubeControllerManager:
   enabled: false
 kubeEtcd:
@@ -29,6 +29,9 @@ prometheus:
     ruleSelector: {}
     ruleNamespaceSelector: {}
     ruleSelectorNilUsesHelmValues: false
+    scrapeConfigSelector: {}
+    scrapeConfigNamespaceSelector: {}
+    scrapeConfigSelectorNilUsesHelmValues: false
     walCompression: true
     enableFeatures:
       - auto-gomemlimit
@@ -42,36 +45,6 @@ prometheus:
           resources:
             requests:
               storage: 20Gi
-    additionalScrapeConfigs:
-      - job_name: 'k3s-controller-manager'
-        scheme: https
-        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-        tls_config:
-          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-          insecure_skip_verify: true
-        static_configs:
-          - targets:
-              - '100.112.35.79:10257'
-              - '100.126.60.86:10257'
-              - '100.113.113.100:10257'
-      - job_name: 'k3s-scheduler'
-        scheme: https
-        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-        tls_config:
-          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-          insecure_skip_verify: true
-        static_configs:
-          - targets:
-              - '100.112.35.79:10259'
-              - '100.126.60.86:10259'
-              - '100.113.113.100:10259'
-      - job_name: 'k3s-etcd'
-        scheme: http
-        static_configs:
-          - targets:
-              - '100.112.35.79:2381'
-              - '100.126.60.86:2381'
-              - '100.113.113.100:2381'
     resources:
       requests:
         memory: "768Mi"
