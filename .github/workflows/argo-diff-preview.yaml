@@ -9,7 +9,7 @@ on:
       - .github/**
 
 jobs:
-  build:
+  argo-diff-preview:
     runs-on: ubuntu-latest
     permissions:
       contents: read
