@@ -25,9 +25,10 @@ spec:
           channel: "#alerts-critical"
           sendResolved: true
           color: '{{ if eq .Status "firing" }}danger{{ else }}good{{ end }}'
-          title: '{{ if eq .Status "firing" }}🔴 FIRING{{ else }}🟢 RESOLVED{{ end }} - {{ range .Alerts }}{{ .Annotations.summary }}{{ end}}'
+          title: '{{ if eq .Status "firing" }}🔴 FIRING{{ else }}🟢 RESOLVED{{ end }}{{ range .Alerts }} - {{ .Annotations.summary }}{{ end}}'
           text: >-
-            {{ range .Alerts }}{{ .Annotations.description }}
+            {{ range .Alerts }}
+* {{ .Annotations.description }}
             {{ end }}
           shortFields: true
           fields:
@@ -56,9 +57,10 @@ spec:
           channel: "#alerts-warning"
           sendResolved: true
           color: '{{ if eq .Status "firing" }}warning{{ else }}good{{ end }}'
-          title: '{{ if eq .Status "firing" }}🟠 FIRING{{ else }}🟢 RESOLVED{{ end }} - {{ range .Alerts }}{{ .Annotations.summary }}{{ end}}'
+          title: '{{ if eq .Status "firing" }}🟠 FIRING{{ else }}🟢 RESOLVED{{ end }}{{ range .Alerts }} - {{ .Annotations.summary }}{{ end}}'
           text: >-
-            {{ range .Alerts }}{{ .Annotations.description }}
+            {{ range .Alerts }}
+* {{ .Annotations.description }}
             {{ end }}
           shortFields: true
           fields:
