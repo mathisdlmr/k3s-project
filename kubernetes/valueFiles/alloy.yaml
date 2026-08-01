@@ -56,7 +56,7 @@ alloy:
 
       loki.source.kubernetes "pods" {
         targets    = discovery.relabel.pods.output
-        forward_to = [loki.write.default.receiver]
+        forward_to = [loki.process.kubernetes_logs_pipeline.receiver]
       }
 
       loki.process "kubernetes_logs_pipeline" {
@@ -67,18 +67,6 @@ alloy:
           older_than          = "168h"
           drop_counter_reason = "kubernetes_stale_pod_logs"
         }
-      }
-
-      loki.relabel "logs_integrations_integrations_alloy_health" {
-        rule {
-          replacement = constants.hostname
-          target_label  = "instance"
-        }
-        rule {
-          target_label = "job"
-          replacement  = "integrations/alloy"
-        }
-        forward_to = [loki.write.default.receiver]
       }
 
       loki.write "default" {
