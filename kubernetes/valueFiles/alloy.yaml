@@ -60,7 +60,7 @@ alloy:
       }
 
       loki.process "kubernetes_logs_pipeline" {
-        forward_to = [loki.write.endpoint.receiver]
+        forward_to = [loki.write.default.receiver]
 
         // Must drop logs older than 1 week to avoid alloy continuously scrapping old Daemonsets logs (Longhorn, Traefik, etc.) and Loki stucked in loki_discarded_samples_total infinite increade
         stage.drop {
