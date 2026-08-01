@@ -20,7 +20,7 @@ spec:
       ref: k3s-project
     - repoURL: https://argoproj.github.io/argo-helm
       chart: argo-cd
-      targetRevision: "10.2.1"
+      targetRevision: "10.2.2"
       helm:
         valueFiles:
           - $k3s-project/kubernetes/valueFiles/argocd.yaml
