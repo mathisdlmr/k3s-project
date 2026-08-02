@@ -31,7 +31,7 @@ jobs:
       - name: Format YAML files
         # List directory to avoid modifying .github/ yaml files as yamlfixer doesn't seems to support `ignore` from .yamllint config
         run: |
-          yamlfixer -c .yamllint --recurse -1 ansible/ kubernetes/
+          yamlfixer -c .yamllint --recurse -1 --debug ansible/ kubernetes/
 
       - name: Lint YAML files
         run: |
