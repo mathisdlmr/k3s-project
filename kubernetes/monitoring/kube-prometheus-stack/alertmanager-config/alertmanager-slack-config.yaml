@@ -28,7 +28,7 @@ spec:
           title: '{{ if eq .Status "firing" }}🔴 FIRING{{ else }}🟢 RESOLVED{{ end }}{{ range .Alerts }} - {{ .Annotations.summary }}{{ end}}'
           text: >-
             {{ range .Alerts }}
-* {{ .Annotations.description }}
+            * {{ .Annotations.description }}
             {{ end }}
           shortFields: true
           fields:
@@ -60,7 +60,7 @@ spec:
           title: '{{ if eq .Status "firing" }}🟠 FIRING{{ else }}🟢 RESOLVED{{ end }}{{ range .Alerts }} - {{ .Annotations.summary }}{{ end}}'
           text: >-
             {{ range .Alerts }}
-* {{ .Annotations.description }}
+            * {{ .Annotations.description }}
             {{ end }}
           shortFields: true
           fields:
