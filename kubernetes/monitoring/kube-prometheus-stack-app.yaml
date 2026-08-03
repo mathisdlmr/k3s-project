@@ -26,7 +26,7 @@ spec:
       ref: k3s-project
     - repoURL: https://prometheus-community.github.io/helm-charts
       chart: kube-prometheus-stack
-      targetRevision: 88.0.1
+      targetRevision: 88.1.3
       helm:
         valueFiles:
           - $k3s-project/kubernetes/valueFiles/kube-prometheus-stack.yaml
