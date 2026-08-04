@@ -28,12 +28,12 @@ spec:
               env:
                 - name: ES_JAVA_OPTS
                   value: "-Xms512m -Xmx512m" # 50% of allocated memory for Java heap https://www.elastic.co/docs/reference/elasticsearch/jvm-settings#set-jvm-heap-size
-  volumeClaimTemplates:
-    - metadata:
-        name: elasticsearch-data
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        resources:
-          requests:
-            storage: 16Gi
+      volumeClaimTemplates:
+        - metadata:
+            name: elasticsearch-data
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 16Gi
