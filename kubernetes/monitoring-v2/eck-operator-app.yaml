@@ -20,7 +20,7 @@ spec:
       ref: k3s-project
     - repoURL: https://helm.elastic.co
       chart: eck-operator
-      targetRevision: 3.4.1
+      targetRevision: 3.5.0
       helm:
         valueFiles:
           - $k3s-project/kubernetes/valueFiles/eck-operator.yaml
