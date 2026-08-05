@@ -11,6 +11,15 @@ Entries are grouped by day, newest first. Each entry uses the following labels, 
 
 ---
 
+## 01 08 2026 - Yamllint and Yamlfixer
+
+### Added
+
+- Setup Yamllint on the repository
+- Create a CI that run yamllint, then run yamlfixer and create a pull request to patch yaml format if needed
+
+---
+
 ## 30 07 2026 - Grafana Dashboards and PrometheusRules
 
 ### Added
