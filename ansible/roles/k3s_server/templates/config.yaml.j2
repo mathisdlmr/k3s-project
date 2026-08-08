@@ -1,4 +1,4 @@
-{% if not k3s_servercluster_init %}
+{% if not k3s_server_cluster_init %}
 server: https://{{ hostvars[groups['control_planes'][0]].tailscale_ip }}:6443
 token: {{ hostvars[groups['control_planes'][0]].k3s_server_token }}
 

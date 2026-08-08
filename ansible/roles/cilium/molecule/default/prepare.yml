@@ -8,10 +8,20 @@
   become: true
 
   tasks:
+    - name: Check active swap
+      ansible.builtin.command:
+        cmd: swapon -v
+      register: cilium_swap_state
+      changed_when: false
+      check_mode: false
+      tags: molecule-notest # Avoid changing kernel settings during molecule tests
+
     - name: Disable swap
-      ansible.builtin.command: swapoff -a
-      when: ansible_swaptotal_mb > 0
+      ansible.builtin.command:
+        cmd: swapoff -a
+      when: cilium_swap_state.stdout != ''
       changed_when: true
+      tags: molecule-notest # Avoid changing kernel settings during molecule tests
 
     - name: Install packages missing from the minimal test image
       ansible.builtin.apt:
