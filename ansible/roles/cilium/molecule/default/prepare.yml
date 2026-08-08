@@ -56,11 +56,14 @@
         k3s_server_cluster_init: true
         k3s_server_snapshotter: native # overlayfs-on-overlayfs deadlocks containerd inside a Docker container
 
-    - name: Mark '/' as a shared mount (Cilium bind-mounts /sys/fs/bpf and cgroupv2)
+    - name: Mark '/' as a recursively shared mount (Cilium bind-mounts /sys/fs/bpf and cgroupv2)
+      # Without this, containerd refuses to bind-mount /sys/fs/bpf into the
+      # cilium/cilium-envoy pods: "ERROR : path /sys/fs/bpf is mounted on /sys but it
+      # is not a shared or slave mount".
       ansible.posix.mount:
         path: /
-        src: /
+        src: none
         fstype: none
-        opts: shared
+        opts: rshared
         state: mounted
       changed_when: true
