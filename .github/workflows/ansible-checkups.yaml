@@ -33,8 +33,9 @@ jobs:
           ansible-galaxy collection install -r ansible/requirements.yml
 
       - name: Run Ansible Lint
+        working-directory: ansible
         run: |
-          ansible-lint ansible/
+          ansible-lint .
 
   molecule-test:
     name: Molecule Test roles
