@@ -41,7 +41,7 @@
 
 - name: Configure inotify limits for log collection
   ansible.posix.sysctl:
-    name: "{{ item.names }}"
+    name: "{{ item.name }}"
     value: "{{ item.value }}"
     sysctl_file: /etc/sysctl.d/99-k3s.conf
     reload: true
