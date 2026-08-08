@@ -6,7 +6,7 @@
 
 
 
-def test_base_packages_are_installed(host, name):
+def test_base_packages_are_installed(host):
     BASE_PACKAGES = ["openssh-server", "ufw", "unattended-upgrades", "curl", "lynis"]
     for package in BASE_PACKAGES:
         assert host.package(package).is_installed
