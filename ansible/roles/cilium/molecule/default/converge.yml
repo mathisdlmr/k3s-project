@@ -20,5 +20,49 @@
       - --set hubble.ui.enabled=true
   tasks:
     - name: Apply role under test
-      ansible.builtin.include_role:
-        name: cilium
+      block:
+        - name: Include cilium role
+          ansible.builtin.include_role:
+            name: cilium
+      rescue:
+        - name: "DEBUG: describe node"
+          ansible.builtin.command: k3s kubectl describe node
+          changed_when: false
+          failed_when: false
+          register: cilium_debug_node
+
+        - name: "DEBUG: list pods in kube-system"
+          ansible.builtin.command: k3s kubectl get pods -n kube-system -o wide
+          changed_when: false
+          failed_when: false
+          register: cilium_debug_pods
+
+        - name: "DEBUG: describe non-running pods in kube-system"
+          ansible.builtin.shell: |
+            set -o pipefail
+            k3s kubectl get pods -n kube-system --field-selector=status.phase!=Running -o name \
+              | xargs -r -n1 k3s kubectl describe -n kube-system
+          changed_when: false
+          failed_when: false
+          register: cilium_debug_describe
+
+        - name: "DEBUG: recent events in kube-system"
+          ansible.builtin.command: k3s kubectl get events -n kube-system --sort-by=.lastTimestamp
+          changed_when: false
+          failed_when: false
+          register: cilium_debug_events
+
+        - name: "DEBUG: print diagnostics"
+          ansible.builtin.debug:
+            msg: "{{ item.stdout_lines }}"
+          loop:
+            - "{{ cilium_debug_node }}"
+            - "{{ cilium_debug_pods }}"
+            - "{{ cilium_debug_describe }}"
+            - "{{ cilium_debug_events }}"
+          loop_control:
+            label: "{{ item.cmd | default('diagnostic') }}"
+
+        - name: Re-raise original failure
+          ansible.builtin.fail:
+            msg: "{{ ansible_failed_result.msg | default('Apply role under test failed; see DEBUG output above.') }}"
