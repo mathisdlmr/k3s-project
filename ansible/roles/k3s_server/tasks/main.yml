@@ -1,24 +1,24 @@
 # roles/k3s_server/tasks/main.yml
-# Install k3s, use the `k3s_cluster_init` boolean to define if it's the init node or an other node
+# Install k3s, use the `k3s_server_cluster_init` boolean to define if it's the init node or an other node
 
 ---
-- name: Create {{ k3s_config_dir }}
+- name: Create {{ k3s_server_config_dir }}
   ansible.builtin.file:
-    path: "{{ k3s_config_dir }}"
+    path: "{{ k3s_server_config_dir }}"
     state: directory
     mode: "0755"
 
 - name: Deploy k3s config
   ansible.builtin.template:
     src: config.yaml.j2
-    dest: "{{ k3s_config_dir }}/config.yaml"
+    dest: "{{ k3s_server_config_dir }}/config.yaml"
     mode: "0600"
   notify: Restart k3s
 
 - name: Deploy audit policy (referenced by config.yaml's audit-policy-file)
   ansible.builtin.copy:
     src: audit-policy.yaml
-    dest: "{{ k3s_config_dir }}/audit-policy.yaml"
+    dest: "{{ k3s_server_config_dir }}/audit-policy.yaml"
     mode: "0600"
   notify: Restart k3s
 
@@ -42,18 +42,18 @@
     timeout: 300
 
 - name: Wait for node registration on the clusters
-  ansible.builtin.command: k3s kubectl get node {{ k3s_node_name }}
-  register: _node_registered
-  until: _node_registered.rc == 0
+  ansible.builtin.command: k3s kubectl get node {{ k3s_server_node_name }}
+  register: k3s_server_node_registered
+  until: k3s_server_node_registered.rc == 0
   retries: 30
   delay: 10
   changed_when: false
 
 - name: Wait for the node to be ready (and so, Cilium is working)
   ansible.builtin.command: >-
-    k3s kubectl wait --for=condition=Ready node/{{ k3s_node_name }} --timeout=300s
+    k3s kubectl wait --for=condition=Ready node/{{ k3s_server_node_name }} --timeout=300s
   changed_when: false
-  when: not k3s_cluster_init
+  when: not k3s_server_cluster_init
 
 - name: Create ~/.kube for {{ ansible_user }}
   ansible.builtin.file:
@@ -65,7 +65,7 @@
 
 - name: Copy k3s kubeconfig
   ansible.builtin.copy:
-    src: "{{ k3s_config_dir }}/k3s.yaml"
+    src: "{{ k3s_server_config_dir }}/k3s.yaml"
     dest: "/home/{{ ansible_user }}/.kube/config"
     remote_src: true
     owner: "{{ ansible_user }}"
@@ -75,12 +75,12 @@
 - name: Read node-token on the init node
   ansible.builtin.slurp:
     src: /var/lib/rancher/k3s/server/node-token
-  register: _node_token
-  when: k3s_cluster_init
+  register: k3s_server_node_token
+  when: k3s_server_cluster_init
   no_log: true
 
 - name: Register node-token as a fact
   ansible.builtin.set_fact:
-    k3s_token: "{{ _node_token.content | b64decode | trim }}"
-  when: k3s_cluster_init
+    k3s_server_token: "{{ k3s_server_node_token.content | b64decode | trim }}"
+  when: k3s_server_cluster_init
   no_log: true

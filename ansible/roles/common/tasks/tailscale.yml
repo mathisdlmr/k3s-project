@@ -25,13 +25,13 @@
 
 - name: Verify Tailscaile status
   ansible.builtin.command: tailscale status --json
-  register: _ts_status
+  register: common_tailscale_status
   changed_when: false
 
 - name: Connect to Tailscale account
   ansible.builtin.command: tailscale up --ssh --authkey={{ tailscale_authkey }}
   when:
-    - (_ts_status.stdout | from_json).BackendState != "Running"
+    - (common_tailscale_status.stdout | from_json).BackendState != "Running"
     - tailscale_authkey | length > 0
   changed_when: true
   no_log: true
@@ -43,14 +43,14 @@
       Either define tailscale_authkey (on group_vars/all.yml, using ansible-vault),
       either manually use `sudo tailscale up --ssh` on the node, then run playbook
   when:
-    - (_ts_status.stdout | from_json).BackendState != "Running"
+    - (common_tailscale_status.stdout | from_json).BackendState != "Running"
     - tailscale_authkey | length == 0
 
 - name: Register Tailscale IP of the node
   ansible.builtin.command: tailscale ip -4
-  register: _ts_ip
+  register: common_tailscale_ip
   changed_when: false
 
 - name: Display Tailscale IP of the node
   ansible.builtin.debug:
-    msg: "Tailscale IP : {{ _ts_ip.stdout | trim }}"
+    msg: "Tailscale IP : {{ common_tailscale_ip.stdout | trim }}"

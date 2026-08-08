@@ -19,12 +19,12 @@
   ansible.builtin.command: >-
     cilium install {{ cilium_install_flags | join(' ') }}
   environment:
-    KUBECONFIG: "{{ kubeconfig }}"
+    KUBECONFIG: "{{ cilium_kubeconfig }}"
   when: _cilium_ds.rc != 0
   changed_when: true
 
 - name: Attendre que Cilium soit prêt
   ansible.builtin.command: cilium status --wait
   environment:
-    KUBECONFIG: "{{ kubeconfig }}"
+    KUBECONFIG: "{{ cilium_kubeconfig }}"
   changed_when: false

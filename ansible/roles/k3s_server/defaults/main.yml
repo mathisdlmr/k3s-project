@@ -1,9 +1,9 @@
 # roles/k3s_server/defaults/main.yml
 
 ---
-k3s_cluster_init: false
-k3s_node_name: "{{ inventory_hostname }}"
-k3s_config_dir: /etc/rancher/k3s
-# containerd's snapshotter (overlayfs) deadlocks when k3s itself runs inside a Docker container 
+k3s_server_cluster_init: false
+k3s_server_node_name: "{{ inventory_hostname }}"
+k3s_server_config_dir: /etc/rancher/k3s
+# containerd's snapshotter (overlayfs) deadlocks when k3s itself runs inside a Docker container
 # (overlay-on-overlay isn't supported) - Molecule overrides this to "native"
-k3s_snapshotter: overlayfs
+k3s_server_snapshotter: overlayfs

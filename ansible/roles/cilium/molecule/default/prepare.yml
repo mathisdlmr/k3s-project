@@ -43,9 +43,14 @@
       ansible.builtin.include_role:
         name: k3s_server
       vars:
-        k3s_cluster_init: true
-        k3s_snapshotter: native # overlayfs-on-overlayfs deadlocks containerd inside a Docker container
+        k3s_server_cluster_init: true
+        k3s_server_snapshotter: native # overlayfs-on-overlayfs deadlocks containerd inside a Docker container
 
     - name: Mark '/' as a shared mount (Cilium bind-mounts /sys/fs/bpf and cgroupv2)
-      ansible.builtin.command: mount --make-rshared /
+      ansible.posix.mount:
+        path: /
+        src: /
+        fstype: none
+        opts: shared
+        state: mounted
       changed_when: true

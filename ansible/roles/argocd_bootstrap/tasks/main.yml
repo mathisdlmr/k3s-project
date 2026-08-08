@@ -2,28 +2,34 @@
 # Install ArgoCD using Helm and then create the bootstrap-app that deploy the rest of the repository
 
 ---
-- name: Install Helm
-  ansible.builtin.shell: >-
-    curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+- name: Download Helm installation script
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+    dest: /tmp/get_helm.sh
+    mode: "0644"
+
+- name: Run Helm installation script
+  ansible.builtin.command: /tmp/get_helm.sh
   args:
     creates: /usr/local/bin/helm
+  changed_when: false
 
 - name: Copy ArgoCD valueFile to the node
   ansible.builtin.copy:
-    src: "{{ argocd_values_file }}"
+    src: "{{ argocd_bootstrap_argocd_values_file }}"
     dest: /tmp/argocd-values.yaml
     mode: "0644"
 
 - name: Copy Bootstrap app to the node
   ansible.builtin.copy:
-    src: "{{ bootstrap_app_file }}"
+    src: "{{ argocd_bootstrap_bootstrap_app_file }}"
     dest: /tmp/bootstrap-app.yaml
     mode: "0644"
 
 - name: Add Argo-Helm repository to Helm
   ansible.builtin.command: helm repo add argo https://argoproj.github.io/argo-helm --force-update
   environment:
-    KUBECONFIG: "{{ kubeconfig }}"
+    KUBECONFIG: "{{ argocd_bootstrap_kubeconfig }}"
   changed_when: false
 
 - name: Install ArgoCD
@@ -32,7 +38,7 @@
     -n argocd --create-namespace
     -f /tmp/argocd-values.yaml
   environment:
-    KUBECONFIG: "{{ kubeconfig }}"
+    KUBECONFIG: "{{ argocd_bootstrap_kubeconfig }}"
   changed_when: true
 
 - name: Wait ArgoCD to be ready
@@ -42,20 +48,20 @@
 
 - name: Deploy Bootstrap application
   ansible.builtin.command: k3s kubectl apply -f /tmp/bootstrap-app.yaml
-  register: _bootstrap
-  changed_when: "'unchanged' not in _bootstrap.stdout"
+  register: argocd_bootstrap_app
+  changed_when: "'unchanged' not in argocd_bootstrap_app.stdout"
 
 - name: Fetch initial ArgoCD secret
   ansible.builtin.command: >-
     k3s kubectl -n argocd get secret argocd-initial-admin-secret
     -o jsonpath={.data.password}
-  register: _argocd_pwd
+  register: argocd_bootstrap_pwd
   failed_when: false
   changed_when: false
 
 - name: Display ArgoCD infos
   ansible.builtin.debug:
     msg: >-
-      ArgoCD admin password : {{ (_argocd_pwd.stdout | b64decode)
-      if _argocd_pwd.rc == 0 else 'secret initial déjà supprimé' }}
+      ArgoCD admin password : {{ (argocd_bootstrap_pwd.stdout | b64decode)
+      if argocd_bootstrap_pwd.rc == 0 else 'secret initial déjà supprimé' }}
       - accès via : kubectl port-forward svc/argocd-server -n argocd 8080:443

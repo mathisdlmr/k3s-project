@@ -8,8 +8,8 @@
   gather_facts: false
   become: true
   vars:
-    argocd_values_file: "{{ playbook_dir }}/../../../../../kubernetes/valueFiles/argocd.yaml"
-    bootstrap_app_file: "{{ playbook_dir }}/../../../../../kubernetes/bootstrap-app.yaml"
+    argocd_bootstrap_argocd_values_file: "{{ playbook_dir }}/../../../../../kubernetes/valueFiles/argocd.yaml"
+    argocd_bootstrap_bootstrap_app_file: "{{ playbook_dir }}/../../../../../kubernetes/bootstrap-app.yaml"
   tasks:
     - name: Apply role under test
       ansible.builtin.include_role:

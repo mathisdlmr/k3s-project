@@ -1,0 +1,11 @@
+# roles/disable_cstates/handlers/main.yml
+
+---
+- name: Regenerate GRUB configuration
+  ansible.builtin.command: update-grub
+  when: disable_cstates_grub.changed
+
+- name: Reboot to apply the new configuration
+  ansible.builtin.reboot:
+    reboot_timeout: 600
+  when: disable_cstates_grub.changed
