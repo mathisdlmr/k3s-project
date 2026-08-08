@@ -15,6 +15,13 @@
     mode: "0600"
   notify: Restart k3s
 
+- name: Deploy audit policy (referenced by config.yaml's audit-policy-file)
+  ansible.builtin.copy:
+    src: audit-policy.yaml
+    dest: "{{ k3s_config_dir }}/audit-policy.yaml"
+    mode: "0600"
+  notify: Restart k3s
+
 - name: Download k3s installation script
   ansible.builtin.get_url:
     url: https://get.k3s.io

@@ -1,0 +1,11 @@
+# roles/k3s_server/files/audit-policy.yaml
+# Minimal Kubernetes audit policy: skip noisy read-only calls, log everything
+# else at Metadata level (who did what, not full request/response bodies).
+
+---
+apiVersion: audit.k8s.io/v1
+kind: Policy
+rules:
+  - level: None
+    verbs: ["get", "list", "watch"]
+  - level: Metadata
