@@ -26,20 +26,26 @@
     dest: /tmp/bootstrap-app.yaml
     mode: "0644"
 
+- name: Install PyYAML
+  ansible.builtin.apt:
+    name: python3-yaml
+    state: present
+
 - name: Add Argo-Helm repository to Helm
-  ansible.builtin.command: helm repo add argo https://argoproj.github.io/argo-helm --force-update
-  environment:
-    KUBECONFIG: "{{ argocd_bootstrap_kubeconfig }}"
-  changed_when: false
+  kubernetes.core.helm_repository:
+    name: argo
+    repo_url: https://argoproj.github.io/argo-helm
+    force_update: true
 
 - name: Install ArgoCD
-  ansible.builtin.command: >-
-    helm upgrade --install argocd argo/argo-cd
-    -n argocd --create-namespace
-    -f /tmp/argocd-values.yaml
-  environment:
-    KUBECONFIG: "{{ argocd_bootstrap_kubeconfig }}"
-  changed_when: true
+  kubernetes.core.helm:
+    name: argocd
+    chart_ref: argo/argo-cd
+    release_namespace: argocd
+    create_namespace: true
+    values_files:
+      - /tmp/argocd-values.yaml
+    kubeconfig: "{{ argocd_bootstrap_kubeconfig }}"
 
 - name: Wait ArgoCD to be ready
   ansible.builtin.command: >-

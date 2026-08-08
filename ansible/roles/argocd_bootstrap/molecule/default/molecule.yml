@@ -64,7 +64,7 @@ scenario:
     - create
     - prepare
     - converge
-    # idempotence : false because it installs Helm
+    - idempotence
     - side_effect
     - verify
     - cleanup
