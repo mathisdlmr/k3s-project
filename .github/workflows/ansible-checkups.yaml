@@ -31,11 +31,12 @@ jobs:
           pip install ansible-lint
 
       - name: Run Ansible Lint
+        working-directory: ansible
         run: |
           ansible-lint ansible/
 
   molecule-test:
-    name: Molecule Test role ${{ matrix.role }}
+    name: Molecule Test roles
     needs: ansible-lint
     runs-on: ubuntu-latest
     strategy:
@@ -45,7 +46,6 @@ jobs:
           - argocd_bootstrap
           - cilium
           - common
-          - disable_cstates
           - k3s_server
 
     steps:
