@@ -11,6 +11,28 @@ Entries are grouped by day, newest first. Each entry uses the following labels, 
 
 ---
 
+## 07 08 2026 - GitHub Workflow for Ansible Checkup
+
+### Added
+
+- A GitHub Workflow that checkup Ansible
+  - First, it runs `ansible-lint`
+  - Then, for each role it runs `molecule test`
+
+_References :_
+* https://blog.stephane-robert.info/docs/infra-as-code/gestion-de-configuration/ansible/roles/ci-github-actions/
+
+## 06 08 2026 - Setup Molecule for Ansible tests
+
+### Added
+
+- Molecule for Ansible testing
+
+_References :_
+* https://oneuptime.com/blog/post/2026-01-22-ansible-molecule-testing/view
+
+---
+
 ## 01 08 2026 - Yamllint and Yamlfixer
 
 ### Added
