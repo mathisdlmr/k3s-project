@@ -31,7 +31,6 @@ jobs:
           pip install ansible-lint
 
       - name: Run Ansible Lint
-        working-directory: ansible
         run: |
           ansible-lint ansible/
 
