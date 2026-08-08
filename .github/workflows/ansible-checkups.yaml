@@ -1,0 +1,67 @@
+---
+name: Ansible Checkups
+
+# yamllint disable-line rule:truthy
+on:
+  push:
+    paths:
+      - "ansible/**"
+      - ".github/workflows/ansible-checkups.yaml"
+  pull_request:
+    paths:
+      - "ansible/**"
+      - ".github/workflows/ansible-checkups.yaml"
+
+jobs:
+  ansible-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14.6"
+
+      - name: Install tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible-lint
+
+      - name: Run Ansible Lint
+        run: |
+          ansible-lint ansible/
+
+  molecule-test:
+    name: Molecule Test role ${{ matrix.role }}
+    needs: ansible-lint
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        role:
+          - argocd_bootstrap
+          - cilium
+          - common
+          - disable_cstates
+          - k3s_server
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14.6"
+
+      - name: Install tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install molecule molecule-plugins[docker]
+
+      - name: Test role ${{ matrix.role }}
+        working-directory: ansible/roles/${{ matrix.role }}
+        run: molecule test
