@@ -1,6 +1,6 @@
 # molecule/default/prepare.yml
-# Purpose: the ubuntu test image is missing modprobe, and needs the base 
-# kernel networking settings k3s expects (normally handled by the common 
+# Purpose: the ubuntu test image is missing modprobe, and needs the base
+# kernel networking settings k3s expects (normally handled by the common
 # role before k3s_server ever runs).
 
 ---
