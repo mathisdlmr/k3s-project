@@ -1,0 +1,71 @@
+# molecule/default/molecule.yml
+# Dependency management (download roles/collections)
+
+---
+dependency:
+  name: galaxy
+  options:
+    requirements-file: requirements.yml
+
+driver:
+  name: docker
+
+platforms:
+  - name: instance-ubuntu-26
+    image: geerlingguy/docker-ubuntu2604-ansible:latest
+    pre_build_image: true
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - /lib/modules:/lib/modules:ro
+    cgroupns_mode: host
+    command: /usr/sbin/init
+    groups:
+      - control_planes
+
+provisioner:
+  name: ansible
+  playbooks:
+    converge: converge.yml
+    prepare: prepare.yml
+  env:
+    # prepare.yml pulls in the sibling k3s_server role.
+    ANSIBLE_ROLES_PATH: "../../../"
+  inventory:
+    host_vars:
+      instance-ubuntu-26:
+        ansible_python_interpreter: /usr/bin/python3
+        ansible_user: root
+        # Vars bellow are use by k3s_server's config template
+        tailscale_ip: "{{ ansible_default_ipv4.address }}"
+        k3s_etcd_snapshot_cron: "0 */6 * * *"
+        k3s_etcd_snapshot_retention: 10
+  config_options:
+    defaults:
+      callbacks_enabled: profile_tasks
+
+verifier:
+  name: testinfra
+  options:
+    v: true
+
+lint: |
+  set -e
+  yamllint .
+  ansible-lint
+
+scenario:
+  name: default
+  test_sequence:
+    - dependency
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    # idempotence : false because it installs Helm
+    - side_effect
+    - verify
+    - cleanup
+    - destroy

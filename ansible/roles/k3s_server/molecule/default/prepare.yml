@@ -1,0 +1,35 @@
+# molecule/default/prepare.yml
+# Purpose: the ubuntu test image is missing modprobe, and needs the base 
+# kernel networking settings k3s expects (normally handled by the common 
+# role before k3s_server ever runs).
+
+---
+- name: Prepare
+  hosts: all
+  become: true
+  tasks:
+    - name: Install packages missing from the minimal test image
+      ansible.builtin.apt:
+        name:
+          - kmod # provides modprobe
+          - curl # k3s-install.sh shells out to it
+        state: present
+        update_cache: true
+
+    - name: Load br_netfilter and overlay kernel modules
+      community.general.modprobe:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - br_netfilter
+        - overlay
+
+    - name: Configure sysctl for k3s networking
+      ansible.posix.sysctl:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        sysctl_file: /etc/sysctl.d/k8s.conf
+        reload: true
+      loop:
+        - { name: net.bridge.bridge-nf-call-iptables, value: "1" }
+        - { name: net.ipv4.ip_forward, value: "1" }

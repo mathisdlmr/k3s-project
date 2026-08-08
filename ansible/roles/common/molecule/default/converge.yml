@@ -1,0 +1,18 @@
+# molecule/default/converge.yml
+# Purpose: bring the instance to the desired state by running the role under test.
+# Molecule calls this playbook with `molecule converge`.
+
+---
+- name: Converge
+  hosts: all
+  become: true
+  vars:
+    ansible_user: root
+    ssh_public_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILRDWvSpJ2xSoKj7ciqnGMe+71EpYFDVdPkWCR4sriA9 molecule-test"
+    lan_cidr: 192.168.0.0/16
+    pod_cidr: 10.0.0.0/8
+    run_lynis_audit: false
+  tasks:
+    - name: Apply role under test
+      ansible.builtin.include_role:
+        name: common

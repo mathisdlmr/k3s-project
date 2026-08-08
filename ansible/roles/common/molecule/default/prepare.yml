@@ -1,0 +1,13 @@
+# molecule/default/prepare.yml
+# Purpose: the test image is missing modprobe, which kernel.yml needs.
+
+---
+- name: Prepare
+  hosts: all
+  become: true
+  tasks:
+    - name: Install kmod (provides modprobe)
+      ansible.builtin.apt:
+        name: kmod
+        state: present
+        update_cache: true

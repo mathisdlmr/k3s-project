@@ -12,8 +12,10 @@
 - name: Regenerate GRUB configuration
   ansible.builtin.command: update-grub
   when: _grub.changed
+  tags: molecule-notest # no bootloader to regenerate inside a container
 
 - name: Reboot to apply the new configuration
   ansible.builtin.reboot:
     reboot_timeout: 600
   when: _grub.changed
+  tags: molecule-notest # rebooting a container just kills it

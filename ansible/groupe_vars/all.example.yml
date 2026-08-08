@@ -1,11 +1,11 @@
 # groupe_vars/all.yml
 # Must be crypted using `ansible-vault encrypt groupe_vars/all.yml` if we want to save it online
 
+---
 # ------------------------------------------------
 # Acces & Security
 # ------------------------------------------------
 
----
 ansible_user: ubuntu
 
 # SSH public key we want to register on .ssh/authorized_keys/ on each nodes

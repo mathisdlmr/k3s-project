@@ -1,0 +1,16 @@
+# molecule/default/converge.yml
+# Purpose: bring the instance to the desired state by running the role under test.
+# Molecule calls this playbook with `molecule converge`.
+
+---
+- name: Converge
+  hosts: all
+  gather_facts: false
+  become: true
+  vars:
+    argocd_values_file: "{{ playbook_dir }}/../../../../../kubernetes/valueFiles/argocd.yaml"
+    bootstrap_app_file: "{{ playbook_dir }}/../../../../../kubernetes/bootstrap-app.yaml"
+  tasks:
+    - name: Apply role under test
+      ansible.builtin.include_role:
+        name: argocd_bootstrap

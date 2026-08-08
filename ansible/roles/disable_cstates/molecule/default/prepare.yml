@@ -1,0 +1,19 @@
+# molecule/default/prepare.yml
+# Purpose: the test image has no bootloader at all, so fabricate the
+# /etc/default/grub a real Ubuntu install would already have.
+
+---
+- name: Prepare
+  hosts: all
+  become: true
+  tasks:
+    - name: Create a realistic /etc/default/grub
+      ansible.builtin.copy:
+        dest: /etc/default/grub
+        content: |
+          GRUB_DEFAULT=0
+          GRUB_TIMEOUT=0
+          GRUB_DISTRIBUTOR=`lsb_release -i -s 2>/dev/null || echo Debian`
+          GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
+          GRUB_CMDLINE_LINUX=""
+        mode: "0644"
