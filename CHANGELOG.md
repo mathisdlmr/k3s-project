@@ -21,6 +21,7 @@ Entries are grouped by day, newest first. Each entry uses the following labels, 
 
 _References :_
 * https://blog.stephane-robert.info/docs/infra-as-code/gestion-de-configuration/ansible/roles/ci-github-actions/
+* https://blog.stephane-robert.info/docs/infra-as-code/gestion-de-configuration/ansible/roles/tests-testinfra/
 
 ## 06 08 2026 - Setup Molecule for Ansible tests
 
