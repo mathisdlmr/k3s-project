@@ -23,16 +23,22 @@ This Ansible project is based on these Ansible tutorials :
 │   ├── argocd_bootstrap
 │   │   ├── defaults
 │   │   │   └── main.yml
+│   │   ├── molectule
+│   │   │   └── ...
 │   │   └── tasks
 │   │       └── main.yml
 │   ├── cilium
 │   │   ├── defaults
 │   │   │   └── main.yml
+│   │   ├── molectule
+│   │   │   └── ...
 │   │   └── tasks
 │   │       └── main.yml
 │   ├── common
 │   │   ├── handlers
 │   │   │   └── main.yml
+│   │   ├── molectule
+│   │   │   └── ...
 │   │   └── tasks
 │   │       ├── audit.yml
 │   │       ├── firewall.yml
@@ -42,6 +48,8 @@ This Ansible project is based on these Ansible tutorials :
 │   │       ├── ssh.yml
 │   │       └── tailscale.yml
 │   ├── disable_cstates
+│   │   ├── molectule
+│   │   │   └── ...
 │   │   └── tasks
 │   │       └── main.yml
 │   └── k3s_server
@@ -49,6 +57,8 @@ This Ansible project is based on these Ansible tutorials :
 │       │   └── main.yml
 │       ├── handlers
 │       │   └── main.yml
+│       ├── molectule
+│       │   └── ...
 │       ├── tasks
 │       │   └── main.yml
 │       └── templates
@@ -59,6 +69,5 @@ This Ansible project is based on these Ansible tutorials :
 └── requirements.yml
 ```
 
-Other ideas : 
+## Other ideas
 - Separate an init node from a classic node in terms or role, rather than using a boolean
-
