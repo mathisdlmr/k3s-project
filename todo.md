@@ -11,7 +11,9 @@
   * non-root containers
   * read-only filesystem
   * dropped capabilities
-* Use Terraform to create OpenStack/Proxmox VM on nodes then ansible to setup them
+* Use Terraform to create Proxmox VM on nodes then ansible to setup them
+* Proxmox Backups
+* Keycloak / Authentik SSO
 * Full Rolling strategy, self-managed or using Kargo
 * Create a true backend (Go/NodeJS, PostgreSQL, Redis) with a full CI that runs tests, build backend, scan image with Trivy/Sonarqube, push on a registry, update helm values, and auto-deploy
 * Create a `docs/disasters/` folder with each possible incident, the impact, the recovery procedure and metrics (RTO, RPO)
