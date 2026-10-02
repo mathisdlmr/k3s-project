@@ -20,7 +20,7 @@ spec:
       ref: k3s-project
     - repoURL: https://fluent.github.io/helm-charts
       chart: fluent-operator
-      targetRevision: 4.2.0
+      targetRevision: 4.3.0
       helm:
         valueFiles:
           - $k3s-project/kubernetes/valueFiles/fluent-operator.yaml
