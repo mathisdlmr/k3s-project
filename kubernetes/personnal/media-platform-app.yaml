@@ -17,6 +17,7 @@ spec:
   source:
     repoURL: https://github.com/mathisDlmr/media-platform.git
     targetRevision: main
+    path: .
   syncPolicy:
     automated:
       selfHeal: true
