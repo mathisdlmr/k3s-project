@@ -22,7 +22,7 @@ spec:
       ref: k3s-project
     - repoURL: https://charts.longhorn.io
       chart: longhorn
-      targetRevision: 1.12.1
+      targetRevision: 1.13.0
       helm:
         valueFiles:
           - $k3s-project/kubernetes/valueFiles/longhorn.yaml
