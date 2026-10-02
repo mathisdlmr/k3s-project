@@ -9,6 +9,21 @@ Entries are grouped by day, newest first. Each entry uses the following labels, 
 - **Fixed** - notable bug hunts worth remembering
 - **Removed** - things decommissioned or replaced
 
+
+Tracker, C411, Seedpull en trackers
+
+---
+
+## 01 10 2026 - Finally repaired the 5825u node !
+
+### Fixed
+
+- The CPU Fan control on the motherboard of the 5825u node was dead
+  - Destroyed an USB cable
+  - Then soldered the USB power cables to the CPU fan's power supply
+  - Once the 5825u was back online, merged all Renovate PRs
+  - Then wait for longhorn the rebuild the PVCs
+
 ---
 
 ## 07 08 2026 - GitHub Workflow for Ansible Checkup
