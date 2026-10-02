@@ -15,7 +15,7 @@ spec:
     server: https://kubernetes.default.svc
     namespace: media-platform
   source:
-    repoURL: https://github.com/mathisDlmr/media-platform.git
+    repoURL: git@github.com:mathisdlmr/media-platform.git
     targetRevision: main
     path: .
   syncPolicy:

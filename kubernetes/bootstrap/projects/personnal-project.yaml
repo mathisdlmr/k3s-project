@@ -7,7 +7,7 @@ metadata:
 spec:
   sourceRepos:
     - https://github.com/mathisDlmr/k3s-project.git
-    - https://github.com/mathisDlmr/media-platform.git
+    - git@github.com:mathisdlmr/media-platform.git
   destinations:
     - name: "*"
       namespace: argocd
