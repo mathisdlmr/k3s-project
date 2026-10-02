@@ -18,7 +18,4 @@ spec:
     - name: "*"
       namespace: website
       server: "*"
-    - name: "*"
-      namespace: werewolf
-      server: "*"
   clusterResourceWhitelist: []
