@@ -5,19 +5,19 @@ metadata:
   name: affine
   namespace: argocd
   labels:
-    argocd.argoproj.io/instance: productivity
-    app.kubernetes.io/part-of: productivity
+    argocd.argoproj.io/instance: personnal
+    app.kubernetes.io/part-of: personnal
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: productivity
+  project: personnal
   destination:
     server: https://kubernetes.default.svc
     namespace: affine
   source:
     repoURL: https://github.com/mathisDlmr/k3s-project.git
     targetRevision: main
-    path: kubernetes/productivity/affine/
+    path: kubernetes/personnal/affine/
   syncPolicy:
     automated:
       selfHeal: true

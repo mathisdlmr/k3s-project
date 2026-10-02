@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: productivity
+  name: personnal
   namespace: argocd
 spec:
   sourceRepos:
@@ -12,7 +12,7 @@ spec:
       namespace: argocd
       server: "*"
     - name: "*"
-      namespace: productivity
+      namespace: personnal
       server: "*"
     - name: "*"
       namespace: affine
