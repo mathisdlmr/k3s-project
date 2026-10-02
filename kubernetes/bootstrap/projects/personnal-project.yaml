@@ -17,4 +17,7 @@ spec:
     - name: "*"
       namespace: affine
       server: "*"
+    - name: "*"
+      namespace: media-platform
+      server: "*"
   clusterResourceWhitelist: []
