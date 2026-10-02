@@ -39,9 +39,9 @@ fi
 # 1. Install Tailscale
 echo ""
 echo "[1] Install Tailscale VPN client..."
-sudo dnf install tailscale -y
-sudo systemctl start tailscaled
-sudo tailscale up --operator=$USER
+curl -fsSL https://tailscale.com/install.sh | sh
+sudo systemctl enable --now tailscaled
+sudo tailscale up --ssh
 
 # 2. Install HAProxy
 echo ""
