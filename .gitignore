@@ -1,2 +1,4 @@
 !gitignore
 .ansible/
+.claude/
+.vscode/
