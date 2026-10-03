@@ -1,0 +1,10 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: longhorn-rate-limit
+  namespace: infra
+spec:
+  rateLimit:
+    average: 1      # Average requests per second
+    period: 5s       # Peroid of 5 seconds

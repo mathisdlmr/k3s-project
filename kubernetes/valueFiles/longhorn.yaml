@@ -23,7 +23,7 @@ ingress:
   tls: false
   annotations:
     traefik.ingress.kubernetes.io/router.tls: "true"
-    traefik.ingress.kubernetes.io/router.middlewares: infra-longhorn-auth@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: infra-longhorn-auth@kubernetescrd,infra-longhorn-rate-limit@kubernetescrd
 
 metrics:
   serviceMonitor:
