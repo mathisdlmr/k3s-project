@@ -6,5 +6,6 @@ metadata:
   namespace: infra
 spec:
   rateLimit:
-    average: 1      # Average requests per second
-    period: 5s       # Peroid of 5 seconds
+    average: 30      # Average requests ...
+    period: 1m     # ... per minute
+    burst: 30        # Maximum burst
