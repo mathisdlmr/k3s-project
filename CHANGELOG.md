@@ -9,8 +9,13 @@ Entries are grouped by day, newest first. Each entry uses the following labels, 
 - **Fixed** - notable bug hunts worth remembering
 - **Removed** - things decommissioned or replaced
 
+---
 
-Tracker, C411, Seedpull en trackers
+## 02 10 2026 - Something secret ...
+
+### Added
+
+- Create a media-server ArgoCD application that deploy my own media-server from a private repo
 
 ---
 

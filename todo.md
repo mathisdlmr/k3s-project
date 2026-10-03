@@ -3,10 +3,12 @@
 ## Next Steps
 
 * Deploy Immich
+* Deploy NextCloud
 * Buy a NAS, and setup a S3 (Garage, MinIO or smthg) and a NFS (ClusterFS or Ceph) on it and use it as a storage
 * Create a full CI for kubernetes : kubernetes linter, helm linter, Kubernetes good practices, etc.
 * Create a full CD for Ansible : Preview using Tailscale on GitHub, If merged on main then deploy using Tailscale on GitHub
 * Full backup policy (Only need Longhord Backups ? on Backblaze B ? and also add Velero's cluster backups ?)
+  * En profiter pour voir toutes les possibilités de longhorn
 * NetworkPolicy for inside-cluster security
 * Pod-Security
   * Pod Security Standards
@@ -27,6 +29,7 @@
 ## Global
 
 ### Fix
+- Pourquoi les alertes de Alertmanager n'apparaissent pas dans Grafana
 - Les logs de WARN/ERROR
 
 ### Chore
@@ -39,7 +42,7 @@
 ### Feat
 
 - Passer les outils en mode MS : ElasticSearch, Loki, Tempo, etc.
-- Revoir les config Loki, Tempo, Kibana, ElasticSearch, etc. pour avoir un truc propre et concrètement utile (pas juste installé)
+- Revoir les config Loki, Tempo, Kibana, ElasticSearch, Victoria Metricsetc. pour avoir un truc propre et concrètement utile (pas juste installé)
 - Revoir l'orga des apps, namespaces, appProjects, etc.
 - Merge les PRs
 - Reset le cluster pour tester
