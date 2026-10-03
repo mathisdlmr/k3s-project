@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: media-platform
+  name: media-server
   namespace: argocd
   labels:
     argocd.argoproj.io/instance: personnal
@@ -13,9 +13,9 @@ spec:
   project: personnal
   destination:
     server: https://kubernetes.default.svc
-    namespace: media-platform
+    namespace: media-server
   source:
-    repoURL: git@github.com:mathisdlmr/media-platform.git
+    repoURL: git@github.com:mathisdlmr/media-server.git
     targetRevision: main
     path: .
   syncPolicy:
