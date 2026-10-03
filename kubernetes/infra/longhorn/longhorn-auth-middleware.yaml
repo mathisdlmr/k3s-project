@@ -7,3 +7,6 @@ metadata:
 spec:
   basicAuth:
     secret: longhorn-auth-secret # Generated using htpasswd -nb admin '<mot_de_passe>'
+  rateLimit:
+    average: 12
+    period: 60s
