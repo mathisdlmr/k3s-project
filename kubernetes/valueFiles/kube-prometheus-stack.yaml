@@ -61,6 +61,11 @@ grafana:
     server:
       root_url: "%(protocol)s://%(domain)s/"
   additionalDataSources:
+    - name: Alertmanager
+      type: prometheus
+      url: http://alertmanager-operated.monitoring.svc.cluster.local:9093
+      access: proxy
+      basicAuth: false
     - name: Loki
       type: loki
       url: http://loki.monitoring.svc.cluster.local:3100
