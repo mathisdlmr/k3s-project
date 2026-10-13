@@ -20,13 +20,13 @@ spec:
       namespace: infra
       server: "*"
     - name: "*"
-      namespace: traefik
-      server: "*"
-    - name: "*"
-      namespace: cilium
+      namespace: kube-system
       server: "*"
     - name: "*"
       namespace: cilium-secrets
+      server: "*"
+    - name: "*"
+      namespace: traefik
       server: "*"
   clusterResourceWhitelist:
     - group: "*"
