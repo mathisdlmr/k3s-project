@@ -2,7 +2,7 @@
 global:
   image:
     repository: ghcr.io/mathisdlmr/argocd
-    tag: "v3.3.3"
+    tag: "v3.5.5"
 
 configs:
   params:
