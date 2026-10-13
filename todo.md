@@ -34,6 +34,7 @@
 
 ### Chore
 
+- Bouger Longhorn dans son propre namespace longhorn-system
 - Redéfinir les resources avec des VPA
 - Définir taint et tolérations
 - Définir liveness et readiness probes

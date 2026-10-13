@@ -28,7 +28,7 @@ spec:
           - $k3s-project/kubernetes/valueFiles/longhorn.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: infra
+    namespace: longhorn-system
   syncPolicy:
     automated:
       selfHeal: true

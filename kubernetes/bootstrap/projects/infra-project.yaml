@@ -15,19 +15,22 @@ spec:
   destinations:
     - name: "*"
       namespace: argocd
-      server: "*"
+      server: "https://kubernetes.default.svc"
     - name: "*"
       namespace: infra
-      server: "*"
+      server: "https://kubernetes.default.svc"
     - name: "*"
       namespace: kube-system
-      server: "*"
+      server: "https://kubernetes.default.svc"
     - name: "*"
       namespace: cilium-secrets
-      server: "*"
+      server: "https://kubernetes.default.svc"
+    - name: "*"
+      namespace: longhorn-system
+      server: "https://kubernetes.default.svc"
     - name: "*"
       namespace: traefik
-      server: "*"
+      server: "https://kubernetes.default.svc"
   clusterResourceWhitelist:
     - group: "*"
       kind: "*"
