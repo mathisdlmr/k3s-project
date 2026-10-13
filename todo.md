@@ -1,103 +1,65 @@
 # TODO
 
-## FIX
+## Next Steps
 
-- [ ] Pourquoi n'y a t il pas de métriques du node worker ?
+* Deploy Immich
+* Deploy NextCloud
+* Buy a NAS, and setup a S3 (Garage, MinIO or smthg) and a NFS (ClusterFS or Ceph) on it and use it as a storage
+* Create a full CI for kubernetes : kubernetes linter, helm linter, Kubernetes good practices, etc.
+* Create a full CD for Ansible : Preview using Tailscale on GitHub, If merged on main then deploy using Tailscale on GitHub
+* Full backup policy (Only need Longhord Backups ? on Backblaze B ? and also add Velero's cluster backups ?)
+  * En profiter pour voir toutes les possibilités de longhorn
+* NetworkPolicy for inside-cluster security
+* Pod-Security
+  * Pod Security Standards
+  * non-root containers
+  * read-only filesystem
+  * dropped capabilities
+* Create a true backend (Go/NodeJS, PostgreSQL, Redis) with a full CI that runs tests, build backend, scan image with Trivy/Sonarqube, push on a registry, update helm values, and auto-deploy
 
-## CHORE
+## Could be cool
 
-- [ ] Redéfinir les resources
-- [ ] Définir taint et tolérations :
-  - Prom, Grafana, AlertManager, CronJobs Skiut c'est sur le worker
-- [ ] Définir liveness et readiness probes
-- [ ] Redirection skiut.mdlmr.fr -> skiut.mdlmr.fr/skiutc et idem pour nimportequoi.mdlmr.fr -> mdlmr.fr
-- [ ] Mieux ranger les serviceMonitor :
-  - Sois les supprimer
-  - Sois les deployer dans leur namespace concerné
-  - Et voir si il n'y a pas d'autres serviceMonitor sympa à deploy
-- [ ] Voir pour parser les templates de value Helm (Traefik, Alloy, Loki, etc.) avec un LLM et voir ce qu'il peut etre interessant à garder
-- [ ] Globalement mieux ranger monitoring entre chart helm, overload de config, dashboards, etc.
+* Full Rolling strategy, self-managed or using Kargo, for the true backend
 
-## FEAT
+* Create a `docs/disasters/` folder with each possible incident, the impact, the recovery procedure and metrics (RTO, RPO)
+* AdmissionPolicies Kyverno/gatekeeper
 
-- cleanup sur la partie monitoring (folders organisés n'importe comment pour metrics/)
-- dashboards prometheus en gitops
-- Velero
-- [ ] Cillium Hubble
-- [ ] Voir pour des métriques sur tous les services : loki, tempo, traefik, etc.
-- [ ] Refaire la doc de README
-- [ ] Dashboards Grafana ArgoCD, Cloudflare, Traefik...
-- [ ] Redis global (app "utils")
-- [ ] OTel en parallele de Alloy (et pour log/metrics/traces Filebeat, metricbeat, APM server) (app "monitoring-v2")
-- [ ] Kubernetes dashboard
-- [ ] Sysdig et/ou Falco et/ou trivy operator (app "security")
-- [ ] Sonarqube
-- [ ] Configuration Alloy boostée aux hormones : https://grafana.com/docs/opentelemetry/collector/grafana-alloy/
-- [ ] Minio et Longhorn pour du stockage S3 et des PV dynamiques (app "utils")
-- [ ] ArgoWorkflow ou Apache Workflow
-- [ ] Istio /Linkerd + Kcert
-- [ ] Jaeger
-- [ ] Tools Go
-- [ ] TFA avec Google (https://mattdyson.org/blog/2024/02/using-traefik-with-cloudflare-tunnels/) ou Keycloak
-- [ ] Serveur ski'ut en nodejs
-- [ ] Templatiser Ski'ut en Helm, surtout pour injecter les env
-- [ ] Kargo
-- [ ] Chaos Mesh, Kubecost, kube-resource-report, kube-bench, etc.
-- [ ] Uptime Kuma
-- [ ] Registry Harbor
-- [ ] Gitea
-- [ ] Hosting
-- [ ] Rancher pour du multi node ? Karpenter ?
-- [ ] External DNS
+* Use Terraform to create Proxmox VM on nodes then ansible to setup them
 
-## Migration 21/03/2026
+## Global
 
-une fois longhorn -> --disable=local-storage sur k3s
+### Fix
+- Pourquoi les alertes de Alertmanager n'apparaissent pas dans Grafana
+- Les logs de WARN/ERROR
 
-une fois CNI :
+### Chore
 
-# /etc/rancher/k3s/config.yaml
+- Redéfinir les resources avec des VPA
+- Définir taint et tolérations
+- Définir liveness et readiness probes
+- Redirection nimportequoi.mdlmr.fr -> mdlmr.fr
 
-disable:
+### Feat
 
-- servicelb
-- traefik
-- local-storage # après migration Longhorn
-
-# Perf etcd (pour HA)
-
-etcd-arg:
-
-- "quota-backend-bytes=4294967296" # 4Gi max DB size
-- "auto-compaction-mode=periodic"
-- "auto-compaction-retention=1h"
-
-# Kubelet tuning
-
-kubelet-arg:
-
-- "max-pods=110"
-- "kube-reserved=cpu=100m,memory=256Mi"
-- "system-reserved=cpu=100m,memory=256Mi"
-- "eviction-hard=memory.available<200Mi,nodefs.available<10%"
-
-# API server
-
-kube-apiserver-arg:
-
-- "audit-log-path=/var/log/k3s-audit.log"
-- "audit-log-maxage=7"
-
-1. Sécurité Kubernetes (très important pour la suite)
-* RBAC strict
-* pas de cluster-admin partout
-* limiter les ServiceAccount
-
-2. Sécuriser K3S lui-même
-* permissions sur /etc/rancher/k3s/k3s.yaml
-* rotation des certificats
-* tokens sécurisés
-
-3. Isolation réseau (CNI) depuis LongHorn + HA
-* traffic inter-node sécurisé
-* policies réseau (NetworkPolicy)
+- Passer les outils en mode MS : ElasticSearch, Loki, Tempo, etc.
+- Revoir les config Loki, Tempo, Kibana, ElasticSearch, Victoria Metricsetc. pour avoir un truc propre et concrètement utile (pas juste installé)
+- Revoir l'orga des apps, namespaces, appProjects, etc.
+- Merge les PRs
+- Reset le cluster pour tester
+- Refaire README de k3s et mathisDlmr, màj le site et LinkedIn
+- Cillium Hubble
+- Victoria Metrics
+- oTel (+ APM server ?)
+- Sysdig et/ou Falco et/ou trivy operator (app "security")
+- Kyverno
+- Istio /Linkerd + Kcert
+- Sonarqube
+- Gateway API
+- Configuration Alloy boostée aux hormones : https://grafana.com/docs/opentelemetry/collector/grafana-alloy/
+- ArgoWorkflow ou Apache Workflow
+- Jaeger
+- Tools Go
+- TFA avec Google (https://mattdyson.org/blog/2024/02/using-traefik-with-cloudflare-tunnels/) ou Keycloak
+- Templatiser Ski'ut en Helm, surtout pour injecter les env
+- Chaos Mesh, Kubecost, kube-resource-report, kube-bench, etc.
+- External DNS

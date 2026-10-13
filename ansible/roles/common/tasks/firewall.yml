@@ -1,6 +1,7 @@
 # roles/common/tasks/firewall.yml
 # Define UFW rules
 
+---
 - name: Default policy - deny incoming
   community.general.ufw:
     direction: incoming

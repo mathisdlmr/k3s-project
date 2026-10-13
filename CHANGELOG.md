@@ -11,12 +11,101 @@ Entries are grouped by day, newest first. Each entry uses the following labels, 
 
 ---
 
+## 02 10 2026 - Something secret ...
+
+### Added
+
+- Create a media-server ArgoCD application that deploy my own media-server from a private repo
+
+---
+
+## 01 10 2026 - Finally repaired the 5825u node !
+
+### Fixed
+
+- The CPU Fan control on the motherboard of the 5825u node was dead
+  - Destroyed an USB cable
+  - Then soldered the USB power cables to the CPU fan's power supply
+  - Once the 5825u was back online, merged all Renovate PRs
+  - Then wait for longhorn the rebuild the PVCs
+
+---
+
+## 07 08 2026 - GitHub Workflow for Ansible Checkup
+
+### Added
+
+- A GitHub Workflow that checkup Ansible
+  - First, it runs `ansible-lint`
+  - Then, for each role it runs `molecule test`
+
+_References :_
+* https://blog.stephane-robert.info/docs/infra-as-code/gestion-de-configuration/ansible/roles/ci-github-actions/
+* https://blog.stephane-robert.info/docs/infra-as-code/gestion-de-configuration/ansible/roles/tests-testinfra/
+
+## 06 08 2026 - Setup Molecule for Ansible tests
+
+### Added
+
+- Molecule for Ansible testing
+
+_References :_
+* https://oneuptime.com/blog/post/2026-01-22-ansible-molecule-testing/view
+
+---
+
+## 01 08 2026 - Yamllint and Yamlfixer
+
+### Added
+
+- Setup Yamllint on the repository
+- Create a CI that run yamllint, then run yamlfixer and create a pull request to patch yaml format if needed
+
+---
+
+## 30 07 2026 - Grafana Dashboards and PrometheusRules
+
+### Added
+
+- Multiple Grafana dashboard found online to visualise metrics of each deployed components (cilium, traefik, etc.)
+- Multiple PrometheusRule and AlertManagerConfig to send Slack alerts when a component have an unexepected behavior
+
+---
+
+## 28 07 2026 - Observability update in Kube-Prometheus-Stack
+
+### Added
+
+- Kube-Prometheus-Stack app can now deploy `AlertmanagerConfig`, Grafana dashboards, `PodMonitor`, `Probe`, `PrometheusRule`, `ScrapeConfig`, `ServiceMonitor`
+- A Helm Chart has been created on `kubernetes/monitoring/kube-prometheus-stack/grafana-dashboards` to deploy each dashboard on a separated ConfigMap, and asked Grafana to replicate folder structure of the repo
+
+---
+
+## 26 07 2026 - Major cluster monitoring review
+
+### Changed
+
+- Remove every ServiceMonitor used for control plane monitoring, and use additionalScrapeConfig instead, as k3s doesn't deploy a resource for each element of the control plane (scheduler, api-server, etc.) like k8s
+- Redefine k3s config for
+    - etcd exposed metrics,
+    - kubelet configuration to avoid Kubernetes resources being OOM Killed,
+    - and Api Server giving audit logs
+- Enable ServiceMonitor for every service when it's possible (Cilium, Traefik, Alloy, etc.)
+- Also switch Loki and Alloy deprecated Helm chart from grafana.github.io to grafana-community.github.io
+
+_References :_
+* https://oneuptime.com/blog/post/2026-03-20-k3s-server-options/view
+* https://blog.zwindler.fr/2023/09/15/k3s-ajouter-monitoring/
+
+---
+
 ## 21 07 2026 - Finally deploying a v1 of Ansible setup
 
 ### Added
 
-- Create an Ansible project that make deployment easier and reproductible 
+- Create an Ansible project that make deployment easier and reproductible
     - See `ansible/README.md` for more informations
+- Cilium is now re-declared on ArgoCD infra application so that Renovate can update Cilium
 
 ---
 

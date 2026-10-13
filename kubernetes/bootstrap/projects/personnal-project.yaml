@@ -1,0 +1,24 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: personnal
+  namespace: argocd
+spec:
+  sourceRepos:
+    - https://github.com/mathisDlmr/k3s-project.git
+    - git@github.com:mathisdlmr/media-server.git
+  destinations:
+    - name: "*"
+      namespace: argocd
+      server: "*"
+    - name: "*"
+      namespace: personnal
+      server: "*"
+    - name: "*"
+      namespace: affine
+      server: "*"
+    - name: "*"
+      namespace: media-server
+      server: "*"
+  clusterResourceWhitelist: []

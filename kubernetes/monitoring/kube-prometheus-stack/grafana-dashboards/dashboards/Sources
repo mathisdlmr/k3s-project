@@ -1,0 +1,8 @@
+Prometheus, Loki, Tempo and node-exporter dashboards : https://github.com/devopsaitoolkit/grafana-dashboards/tree/main/dashboards
+
+Alloy : in https://github.com/grafana/alloy/releases/tag/v1.18.0 downloaded the 
+alloy-mixin-dashboards-v1.18.0.zip 
+
+ArgoCD : https://github.com/adinhodovic/argo-cd-mixin/tree/main
+
+The others : https://grafana.com/grafana/dashboards/

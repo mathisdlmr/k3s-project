@@ -1,0 +1,18 @@
+---
+extends: default
+
+ignore: |
+  ansible/groupe_vars/all.yml
+  kubernetes/monitoring/kube-prometheus-stack/grafana-dashboards/templates/
+
+rules:
+  line-length:
+    max: 180
+    level: warning
+  truthy:
+    allowed-values: ["true", "false"]
+  braces:
+    max-spaces-inside: 1
+  comments:
+    min-spaces-from-content: 1
+  comments-indentation: false

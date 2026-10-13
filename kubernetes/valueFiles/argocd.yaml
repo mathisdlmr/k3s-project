@@ -1,3 +1,4 @@
+---
 global:
   image:
     repository: ghcr.io/mathisdlmr/argocd
@@ -6,8 +7,7 @@ global:
 configs:
   params:
     server.insecure: "true"
-
-  # Useful ressources : 
+  # Useful ressources :
   # - https://argo-cd.readthedocs.io/en/stable/operator-manual/health/
   # - https://argo-cd.readthedocs.io/en/stable/user-guide/diffing/#system-level-configuration
   cm:
@@ -45,6 +45,9 @@ configs:
         - .spec.dataFrom[]?.extract.decodingStrategy
         - .spec.dataFrom[]?.extract.metadataPolicy
         - .spec.dataFrom[]?.extract.nullBytePolicy
+  secret:
+    argocdServerAdminPassword: "$2a$10$AwlgeUSbvqFeZ7VbSX27L.N2zuaazc0Kkpo9JYDOAOE1w2IoxoPSG"
+    argocdServerAdminPasswordMtime: "2026-07-26T00:00:00Z"
 
 controller:
   metrics:

@@ -1,0 +1,69 @@
+# molecule/default/prepare.yml
+# Purpose: bring up the dependencies that cilium assumes are already there
+# (a running k3s node)
+
+---
+- name: Prepare
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Check active swap
+      ansible.builtin.command:
+        cmd: swapon -v
+      register: cilium_swap_state
+      changed_when: false
+      check_mode: false
+      tags: molecule-notest # Avoid changing kernel settings during molecule tests
+
+    - name: Disable swap
+      ansible.builtin.command:
+        cmd: swapoff -a
+      when: cilium_swap_state.stdout != ''
+      changed_when: true
+      tags: molecule-notest # Avoid changing kernel settings during molecule tests
+
+    - name: Install packages missing from the minimal test image
+      ansible.builtin.apt:
+        name:
+          - kmod # provides modprobe
+          - curl # for k3s-install.sh and Helm install script
+        state: present
+        update_cache: true
+
+    - name: Load br_netfilter and overlay kernel modules
+      community.general.modprobe:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - br_netfilter
+        - overlay
+
+    - name: Configure sysctl for k3s networking
+      ansible.posix.sysctl:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        sysctl_file: /etc/sysctl.d/k8s.conf
+        reload: true
+      loop:
+        - { name: net.bridge.bridge-nf-call-iptables, value: "1" }
+        - { name: net.ipv4.ip_forward, value: "1" }
+
+    - name: Install k3s (single-node cluster init)
+      ansible.builtin.include_role:
+        name: k3s_server
+      vars:
+        k3s_server_cluster_init: true
+        k3s_server_snapshotter: native # overlayfs-on-overlayfs deadlocks containerd inside a Docker container
+
+    - name: Mark '/' as a recursively shared mount (Cilium bind-mounts /sys/fs/bpf and cgroupv2)
+      # Without this, containerd refuses to bind-mount /sys/fs/bpf into the
+      # cilium/cilium-envoy pods: "ERROR : path /sys/fs/bpf is mounted on /sys but it
+      # is not a shared or slave mount".
+      ansible.posix.mount:
+        path: /
+        src: none
+        fstype: none
+        opts: rshared
+        state: mounted
+      changed_when: true

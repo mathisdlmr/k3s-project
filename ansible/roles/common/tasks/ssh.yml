@@ -1,6 +1,7 @@
 # roles/common/tasks/ssh.yml
 # Only allow SSH from the host with ssh_public_key as referred on group_vars
 
+---
 - name: Verifyssh_public_key
   ansible.builtin.assert:
     that:

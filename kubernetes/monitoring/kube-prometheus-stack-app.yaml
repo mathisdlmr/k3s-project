@@ -1,3 +1,4 @@
+---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -13,13 +14,19 @@ spec:
   sources:
     - repoURL: https://github.com/mathisDlmr/k3s-project.git
       targetRevision: main
-      path: kubernetes/monitoring/kube-prometheus-stack/overload-config/
+      path: kubernetes/monitoring/kube-prometheus-stack/
+      directory:
+        recurse: true
+        exclude: "grafana-dashboards/**"
+    - repoURL: https://github.com/mathisDlmr/k3s-project.git
+      targetRevision: main
+      path: kubernetes/monitoring/kube-prometheus-stack/grafana-dashboards
     - repoURL: https://github.com/mathisDlmr/k3s-project.git
       targetRevision: main
       ref: k3s-project
     - repoURL: https://prometheus-community.github.io/helm-charts
       chart: kube-prometheus-stack
-      targetRevision: 87.17.0
+      targetRevision: 91.9.0
       helm:
         valueFiles:
           - $k3s-project/kubernetes/valueFiles/kube-prometheus-stack.yaml

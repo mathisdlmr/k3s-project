@@ -1,3 +1,4 @@
+---
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
@@ -10,6 +11,7 @@ spec:
     - https://charts.longhorn.io
     - https://charts.external-secrets.io
     - https://charts.jetstack.io
+    - https://helm.cilium.io
   destinations:
     - name: "*"
       namespace: argocd
@@ -22,6 +24,9 @@ spec:
       server: "*"
     - name: "*"
       namespace: traefik
+      server: "*"
+    - name: "*"
+      namespace: cilium-secrets
       server: "*"
   clusterResourceWhitelist:
     - group: "*"

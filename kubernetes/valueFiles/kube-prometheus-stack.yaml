@@ -1,3 +1,4 @@
+---
 fullnameOverride: kube-prometheus-stack
 
 # CRDs installées par prometheus-operator-crds pour éviter le deadlock diff/CRD lors des bumps de chart
@@ -6,6 +7,17 @@ crds:
 
 defaultRules:
   create: true
+
+# k3s doesn't provide access to metrics like k8s
+# Must use ScrapeConfig CRDs (see scrape-configs/) to scrape each ControllerManager/Etcd/Scheduller
+kubeControllerManager:
+  enabled: false
+kubeEtcd:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeProxy:
+  enabled: false # Replaced by Cilium
 
 prometheus:
   prometheusSpec:
@@ -18,6 +30,9 @@ prometheus:
     ruleSelector: {}
     ruleNamespaceSelector: {}
     ruleSelectorNilUsesHelmValues: false
+    scrapeConfigSelector: {}
+    scrapeConfigNamespaceSelector: {}
+    scrapeConfigSelectorNilUsesHelmValues: false
     walCompression: true
     enableFeatures:
       - auto-gomemlimit
@@ -31,36 +46,6 @@ prometheus:
           resources:
             requests:
               storage: 20Gi
-    additionalScrapeConfigs:
-      - job_name: 'k3s-controller-manager'
-        scheme: https
-        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-        tls_config:
-          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-          insecure_skip_verify: true
-        static_configs:
-          - targets:
-              - '100.112.35.79:10257'
-              - '100.126.60.86:10257'
-              - '100.113.113.100:10257'
-      - job_name: 'k3s-scheduler'
-        scheme: https
-        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-        tls_config:
-          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-          insecure_skip_verify: true
-        static_configs:
-          - targets:
-              - '100.112.35.79:10259'
-              - '100.126.60.86:10259'
-              - '100.113.113.100:10259'
-      - job_name: 'k3s-etcd'
-        scheme: http
-        static_configs:
-          - targets:
-              - '100.112.35.79:2381'
-              - '100.126.60.86:2381'
-              - '100.113.113.100:2381'
     resources:
       requests:
         memory: "768Mi"
@@ -76,6 +61,11 @@ grafana:
     server:
       root_url: "%(protocol)s://%(domain)s/"
   additionalDataSources:
+    - name: Alertmanager
+      type: prometheus
+      url: http://alertmanager-operated.monitoring.svc.cluster.local:9093
+      access: proxy
+      basicAuth: false
     - name: Loki
       type: loki
       url: http://loki.monitoring.svc.cluster.local:3100
@@ -84,6 +74,10 @@ grafana:
       type: tempo
       url: http://tempo.monitoring.svc.cluster.local:3200
       access: proxy
+  sidecar:
+    dashboards:
+      provider:
+        foldersFromFilesStructure: true
 
 prometheus-node-exporter:
   fullnameOverride: node-exporter

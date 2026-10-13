@@ -1,12 +1,23 @@
 # roles/common/tasks/kernel.yml
 # Define customs kernel settings
 
-- name: Disable swap (k3s doesn't know how to deal with it)
-  ansible.builtin.command: swapoff -a
-  when: ansible_swaptotal_mb > 0
-  changed_when: true
+---
+- name: Check active swap
+  ansible.builtin.command:
+    cmd: swapon -v
+  register: common_swap_state
+  changed_when: false
+  check_mode: false
+  tags: molecule-notest # Avoid changing kernel settings during molecule tests
 
-- name: Also disable swarp on /etc/fstab
+- name: Disable swap
+  ansible.builtin.command:
+    cmd: swapoff -a
+  when: common_swap_state.stdout != ''
+  changed_when: true
+  tags: molecule-notest # Avoid changing kernel settings during molecule tests
+
+- name: Also disable swap on /etc/fstab
   ansible.builtin.replace:
     path: /etc/fstab
     regexp: '^([^#].*\s+swap\s+.*)$'
@@ -40,7 +51,7 @@
 
 - name: Configure inotify limits for log collection
   ansible.posix.sysctl:
-    name: "{{ item.names }}"
+    name: "{{ item.name }}"
     value: "{{ item.value }}"
     sysctl_file: /etc/sysctl.d/99-k3s.conf
     reload: true

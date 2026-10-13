@@ -1,6 +1,7 @@
 # playbooks/site.yml
 # Master playbook that applies all roles to all hosts
 
+---
 - name: Prepare k3s nodes (Requirements, UFW, inotify, etc.)
   hosts: control_planes
   become: true
@@ -26,7 +27,7 @@
   become: true
   roles:
     - role: k3s_server
-      k3s_cluster_init: true
+      k3s_server_cluster_init: true
     - role: cilium
     - role: argocd_bootstrap
 
@@ -36,4 +37,4 @@
   serial: 1
   roles:
     - role: k3s_server
-      k3s_cluster_init: false
+      k3s_server_cluster_init: false

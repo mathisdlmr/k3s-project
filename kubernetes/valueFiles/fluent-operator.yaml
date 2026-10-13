@@ -1,7 +1,11 @@
+---
 Kubernetes: true
 
 operator:
   enable: true
+  extraArgs:
+    - --metrics-bind-address=:8080
+    - --metrics-secure=false
   resources:
     limits:
       cpu: 50m
@@ -9,6 +13,8 @@ operator:
     requests:
       cpu: 10m
       memory: 20Mi
+  serviceMonitor:
+    enable: true
 
 fluentbit:
   enable: true
@@ -19,6 +25,8 @@ fluentbit:
     requests:
       cpu: 10m
       memory: 25Mi
+  serviceMonitor:
+    enable: true
   additionalVolumes:
     - name: es-ca-cert
       secret:

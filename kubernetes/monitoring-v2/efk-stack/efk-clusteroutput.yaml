@@ -1,0 +1,29 @@
+---
+apiVersion: fluentbit.fluent.io/v1alpha2
+kind: ClusterOutput
+metadata:
+  name: efk-clusteroutput
+  labels:
+    fluentbit.fluent.io/enabled: "true"
+spec:
+  matchRegex: (?:kube|service)\..*s
+  es:
+    host: efk-elasticsearch-es-http.monitoring-v2.svc
+    port: 9200
+    httpUser:
+      valueFrom:
+        secretKeyRef:
+          name: efk-es-credentials
+          key: fluentbit_username
+    httpPassword:
+      valueFrom:
+        secretKeyRef:
+          name: efk-es-credentials
+          key: fluentbit_password
+    tls:
+      verify: true
+      caFile: /fluent-bit/es-certs/ca.crt
+    index: logs-fluentbit-default
+    suppressTypeName: "On" # `_type` field is deprecated in ES > 7.x
+    writeOperation: create
+    generateID: true

@@ -1,6 +1,7 @@
 # roles/common/tasks/packages.yml
 # Upgrade system and install base packages
 
+---
 - name: Update APT cache and upgrade system
   ansible.builtin.apt:
     update_cache: true
