@@ -38,6 +38,8 @@ spec:
                 secretKeyRef:
                   name: affine-secret
                   key: DB_DATABASE
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
             - name: POSTGRES_INITDB_ARGS
               value: "--data-checksums"
           volumeMounts:
