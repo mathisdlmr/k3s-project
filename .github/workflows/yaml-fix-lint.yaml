@@ -4,10 +4,16 @@ name: Lint & Fix YAML files
 # yamllint disable-line rule:truthy
 on:
   push:
+    branches:
+      - main
 
 permissions:
   contents: write
   pull-requests: write
+
+concurrency:
+  group: yaml-fix-lint
+  cancel-in-progress: true
 
 jobs:
   lint-and-fix:
@@ -38,6 +44,7 @@ jobs:
           yamllint -c .yamllint .
 
       - name: Create Pull Request
+        id: cpr
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -49,3 +56,10 @@ jobs:
             This PR has been created to fix YAML files that doesn't follow the `.yamllint` rules
           branch: bot/yaml-format
           delete-branch: true
+
+      - name: Merge Pull Request
+        if: steps.cpr.outputs.pull-request-number
+        run: gh pr merge "$PR" --repo ${{ github.repository }} --squash --delete-branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ steps.cpr.outputs.pull-request-number }}
