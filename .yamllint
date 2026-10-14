@@ -2,6 +2,7 @@
 extends: default
 
 ignore: |
+  .github/
   ansible/groupe_vars/all.yml
   kubernetes/monitoring/kube-prometheus-stack/grafana-dashboards/templates/
 
