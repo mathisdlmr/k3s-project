@@ -20,11 +20,10 @@ spec:
             - name: elasticsearch
               resources:
                 requests:
-                  memory: 1Gi
-                  cpu: 200m
+                  cpu: 50m
+                  memory: 1536Mi
                 limits:
-                  memory: 1.5Gi
-                  cpu: 1000m
+                  memory: 2Gi
               env:
                 - name: ES_JAVA_OPTS
                   value: "-Xms512m -Xmx512m" # 50% of allocated memory for Java heap https://www.elastic.co/docs/reference/elasticsearch/jvm-settings#set-jvm-heap-size

@@ -30,8 +30,10 @@ logs:
 
 resources:
   requests:
-    memory: "64Mi"
-    cpu: "50m"
+    cpu: 25m
+    memory: 160Mi
+  limits:
+    memory: 384Mi
 
 metrics:
   prometheus:

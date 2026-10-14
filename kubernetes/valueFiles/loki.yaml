@@ -41,10 +41,9 @@ loki:
     storageClassName: longhorn
   resources:
     requests:
-      cpu: 100m
+      cpu: 50m
       memory: 256Mi
     limits:
-      cpu: 1000m
       memory: 1Gi
 
 deploymentMode: SingleBinary
@@ -72,6 +71,14 @@ memcached:
 memberlist:
   service:
     enabled: false
+
+sidecar:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 96Mi
+    limits:
+      memory: 192Mi
 
 monitoring:
   serviceMonitor:

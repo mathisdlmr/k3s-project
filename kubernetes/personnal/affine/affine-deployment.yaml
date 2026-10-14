@@ -58,10 +58,10 @@ spec:
             failureThreshold: 5
           resources:
             requests:
-              memory: "256Mi"
-              cpu: "100m"
+              cpu: 25m
+              memory: 256Mi
             limits:
-              memory: "1Gi"
+              memory: 1Gi
       volumes:
         - name: affine-storage
           persistentVolumeClaim:

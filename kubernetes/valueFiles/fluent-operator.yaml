@@ -7,24 +7,24 @@ operator:
     - --metrics-bind-address=:8080
     - --metrics-secure=false
   resources:
-    limits:
-      cpu: 50m
-      memory: 50Mi
     requests:
       cpu: 10m
-      memory: 20Mi
+      memory: 64Mi
+    limits:
+      cpu: null # chart default sets a CPU limit
+      memory: 128Mi
   serviceMonitor:
     enable: true
 
 fluentbit:
   enable: true
   resources:
-    limits:
-      cpu: 100m
-      memory: 100Mi
     requests:
-      cpu: 10m
-      memory: 25Mi
+      cpu: 25m
+      memory: 64Mi
+    limits:
+      cpu: null # chart default sets a CPU limit
+      memory: 128Mi
   serviceMonitor:
     enable: true
   additionalVolumes:

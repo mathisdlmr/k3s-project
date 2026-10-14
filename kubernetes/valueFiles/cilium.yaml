@@ -1,4 +1,35 @@
 ---
+resources:
+  requests:
+    cpu: 250m
+    memory: 256Mi
+  limits:
+    memory: 1Gi
+
+initResources:
+  requests:
+    cpu: 10m
+    memory: 16Mi
+  limits:
+    memory: 128Mi
+
+cni:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 16Mi
+    limits:
+      cpu: null # chart default sets a CPU limit
+      memory: 128Mi
+
+envoy:
+  resources:
+    requests:
+      cpu: 25m
+      memory: 64Mi
+    limits:
+      memory: 256Mi
+
 prometheus:
   enabled: true
   serviceMonitor:
@@ -6,6 +37,12 @@ prometheus:
     trustCRDsExist: true
 
 operator:
+  resources:
+    requests:
+      cpu: 25m
+      memory: 64Mi
+    limits:
+      memory: 256Mi
   prometheus:
     enabled: true
     serviceMonitor:
@@ -13,6 +50,12 @@ operator:
 hubble:
   relay:
     enabled: true
+    resources:
+      requests:
+        cpu: 10m
+        memory: 96Mi
+      limits:
+        memory: 256Mi
     prometheus:
       enabled: true
       serviceMonitor:

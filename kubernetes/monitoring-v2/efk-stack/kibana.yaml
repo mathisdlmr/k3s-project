@@ -21,8 +21,7 @@ spec:
         - name: kibana
           resources:
             requests:
-              memory: 512Mi
-              cpu: 200m
+              cpu: 25m
+              memory: 640Mi
             limits:
               memory: 1Gi
-              cpu: 1000m

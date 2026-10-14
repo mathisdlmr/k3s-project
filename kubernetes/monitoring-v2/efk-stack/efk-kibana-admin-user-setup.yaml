@@ -3,6 +3,8 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: efk-kibana-admin-user-setup
+  annotations:
+    argocd.argoproj.io/sync-options: Replace=true # Job template is immutable
 spec:
   backoffLimit: 3
   ttlSecondsAfterFinished: 3600
@@ -12,6 +14,12 @@ spec:
       containers:
         - name: setup-kibana-admin-user
           image: curlimages/curl:8.10.1
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
           env:
             - name: ES_URL
               value: "https://efk-elasticsearch-es-http.monitoring-v2.svc:9200"

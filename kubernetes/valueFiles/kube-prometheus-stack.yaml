@@ -46,12 +46,44 @@ prometheus:
           resources:
             requests:
               storage: 20Gi
+    # ~3.1Gi peak; generous limit since an OOM-kill makes WAL replay need even more memory
     resources:
       requests:
-        memory: "768Mi"
-        cpu: "100m"
+        cpu: 150m
+        memory: 3Gi
+      limits:
+        memory: 5Gi
+
+prometheusOperator:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 64Mi
+    limits:
+      memory: 256Mi
+  prometheusConfigReloader:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 48Mi
+      limits:
+        memory: 128Mi
+  admissionWebhooks:
+    patch:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          memory: 64Mi
 
 grafana:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 512Mi
+    limits:
+      memory: 1536Mi
   defaultDashboardsTimezone: "Europe/Paris"
   admin:
     existingSecret: grafana-admin-secret
@@ -75,12 +107,24 @@ grafana:
       url: http://tempo.monitoring.svc.cluster.local:3200
       access: proxy
   sidecar:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
     dashboards:
       provider:
         foldersFromFilesStructure: true
 
 prometheus-node-exporter:
   fullnameOverride: node-exporter
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      memory: 96Mi
   prometheus:
     monitor:
       enabled: true
@@ -92,6 +136,12 @@ prometheus-node-exporter:
           targetLabel: kubernetes_node
 kube-state-metrics:
   fullnameOverride: kube-state-metrics
+  resources:
+    requests:
+      cpu: 10m
+      memory: 96Mi
+    limits:
+      memory: 256Mi
   metricLabelsAllowlist:
     - pods=[*]
     - deployments=[*]
@@ -108,3 +158,10 @@ kube-state-metrics:
 
 alertmanager:
   enabled: true
+  alertmanagerSpec:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 64Mi
+      limits:
+        memory: 128Mi

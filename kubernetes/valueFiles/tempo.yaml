@@ -54,10 +54,9 @@ tempo:
 
   resources:
     requests:
-      cpu: 100m
-      memory: 256Mi
+      cpu: 25m
+      memory: 192Mi
     limits:
-      cpu: 1000m
       memory: 1Gi
 
   ingester:

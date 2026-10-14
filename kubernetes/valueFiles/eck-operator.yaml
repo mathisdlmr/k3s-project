@@ -4,12 +4,12 @@ installCRDs: true
 replicaCount: 1
 
 resources:
-  limits:
-    cpu: 500m
-    memory: 512Mi
   requests:
-    cpu: 100m
-    memory: 200Mi
+    cpu: 10m
+    memory: 96Mi
+  limits:
+    cpu: null # chart default sets a CPU limit
+    memory: 256Mi
 
 webhook:
   enabled: true
