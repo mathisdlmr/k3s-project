@@ -6,7 +6,6 @@ metadata:
   namespace: argocd
   labels:
     argocd.argoproj.io/instance: personnal
-    app.kubernetes.io/part-of: personnal
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:

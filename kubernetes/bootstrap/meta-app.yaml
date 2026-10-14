@@ -5,7 +5,6 @@ metadata:
   name: meta
   namespace: argocd
   labels:
-    app.kubernetes.io/part-of: argocd
     argocd.argoproj.io/instance: argocd-bootstrap
   annotations:
     argocd.argoproj.io/sync-wave: "1"

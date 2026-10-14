@@ -4,8 +4,6 @@ kind: Application
 metadata:
   name: argocd-bootstrap
   namespace: argocd
-  labels:
-    app.kubernetes.io/part-of: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
