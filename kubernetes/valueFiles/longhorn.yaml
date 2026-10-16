@@ -37,9 +37,9 @@ ingress:
   ingressClassName: traefik
   host: longhorn.mdlmr.fr
   tls: false
-  annotations:
+  annotations: # Seee here for correct annotations syntax : https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/ingress/#annotations
     traefik.ingress.kubernetes.io/router.tls: "true"
-    traefik.ingress.kubernetes.io/router.middlewares: longhorn-auth@kubernetescrd,longhorn-rate-limit@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: longhorn-system-longhorn-auth@kubernetescrd,longhorn-system-longhorn-rate-limit@kubernetescrd
 
 metrics:
   serviceMonitor:
