@@ -1,0 +1,34 @@
+# Generated once and never rotated: the chart would otherwise render a new random
+# token on every ArgoCD sync (helm lookup is not supported by ArgoCD).
+---
+apiVersion: generators.external-secrets.io/v1alpha1
+kind: Password
+metadata:
+  name: datadog-cluster-agent-token
+  namespace: datadog
+spec:
+  length: 32
+  digits: 8
+  symbols: 0
+  noUpper: false
+  allowRepeat: true
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: datadog-cluster-agent-token
+  namespace: datadog
+spec:
+  refreshInterval: "0"
+  target:
+    name: datadog-cluster-agent-token
+    creationPolicy: Owner
+    template:
+      data:
+        token: "{{ .password }}"
+  dataFrom:
+    - sourceRef:
+        generatorRef:
+          apiVersion: generators.external-secrets.io/v1alpha1
+          kind: Password
+          name: datadog-cluster-agent-token

@@ -1,0 +1,56 @@
+---
+datadog:
+  site: datadoghq.eu
+  clusterName: k3s-homelab
+  apiKeyExistingSecret: datadog-secret
+  # k3s specifics: embedded containerd socket and self-signed kubelet certs
+  criSocketPath: /run/k3s/containerd/containerd.sock
+  kubelet:
+    tlsVerify: false
+  logs:
+    enabled: true
+    containerCollectAll: true
+  apm:
+    socketEnabled: true
+  processAgent:
+    processCollection: true
+  networkMonitoring:
+    enabled: false # system-probe (eBPF) can conflict with Cilium, enable deliberately
+
+clusterAgent:
+  enabled: true
+  tokenExistingSecret: datadog-cluster-agent-token
+  metricsProvider:
+    enabled: false # would clash with an existing external.metrics.k8s.io APIService
+  resources:
+    requests:
+      cpu: 20m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
+
+agents:
+  tolerations:
+    - operator: Exists # run on control-plane nodes too
+  containers:
+    agent:
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          memory: 512Mi
+    traceAgent:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
+        limits:
+          memory: 128Mi
+    processAgent:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
+        limits:
+          memory: 128Mi

@@ -13,6 +13,7 @@ spec:
     - https://fluent.github.io/helm-charts
     - https://helm.elastic.co
     - https://victoriametrics.github.io/helm-charts
+    - https://helm.datadoghq.com
   destinations:
     - name: "*"
       namespace: argocd
@@ -22,6 +23,9 @@ spec:
       server: "*"
     - name: "*"
       namespace: monitoring-v2
+      server: "*"
+    - name: "*"
+      namespace: datadog
       server: "*"
     - name: "*"
       namespace: kube-system

@@ -1,0 +1,41 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: datadog
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/instance: monitoring
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: monitoring
+  sources:
+    - repoURL: https://github.com/mathisDlmr/k3s-project.git
+      targetRevision: main
+      path: kubernetes/monitoring/datadog/
+    - repoURL: https://github.com/mathisDlmr/k3s-project.git
+      targetRevision: main
+      ref: k3s-project
+    - repoURL: https://helm.datadoghq.com
+      chart: datadog
+      targetRevision: 3.257.1
+      helm:
+        valueFiles:
+          - $k3s-project/kubernetes/valueFiles/datadog.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: datadog
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
