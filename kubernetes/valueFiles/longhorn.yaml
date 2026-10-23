@@ -12,7 +12,7 @@ defaultSettings:
   defaultDataPath: /var/lib/longhorn
   defaultDataLocality: best-effort
   nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
-  concurrentReplicaRebuildPerNodeLimit: 1 # rebuild traffic goes through Tailscale (userspace WireGuard), parallel rebuilds (default 5) saturate tailscaled CPU
+  concurrentReplicaRebuildPerNodeLimit: 1 # must limit Replica Rebuilds Concurrency to 1 to avoid overloading the node with operations on tailscaled process
 
 longhornUI:
   replicas: 1
