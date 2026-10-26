@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: website
-          image: ghcr.io/mathisdlmr/portfolio:f2be67225471500c788ce88c597eb5ea8336e912ad1ca4815650e0281afe2034
+          image: ghcr.io/mathisdlmr/portfolio:sha-8ba6c49
           ports:
             - containerPort: 80
           resources:
