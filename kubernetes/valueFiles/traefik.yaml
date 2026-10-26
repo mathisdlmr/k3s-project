@@ -24,9 +24,8 @@ tlsStore:
     defaultCertificate:
       secretName: mdlmr-fr-wildcard-tls
 
-logs:
-  access:
-    enabled: true
+accessLog:
+  enabled: true
 
 resources:
   requests:
