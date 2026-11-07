@@ -34,6 +34,7 @@ prometheus:
     scrapeConfigNamespaceSelector: {}
     scrapeConfigSelectorNilUsesHelmValues: false
     walCompression: true
+    retentionSize: 25GB # keep below PVC size, otherwise the disk fills up and Prometheus can't open its WAL
     enableFeatures:
       - auto-gomemlimit
       - memory-snapshot-on-shutdown
@@ -45,7 +46,7 @@ prometheus:
           storageClassName: longhorn
           resources:
             requests:
-              storage: 20Gi
+              storage: 30Gi
     # ~3.1Gi peak; generous limit since an OOM-kill makes WAL replay need even more memory
     resources:
       requests:
