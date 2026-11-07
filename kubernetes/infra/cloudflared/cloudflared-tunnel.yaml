@@ -5,7 +5,7 @@ metadata:
   name: cloudflared-tunnel
   namespace: infra
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: cloudflared-tunnel
@@ -15,6 +15,13 @@ spec:
         app: cloudflared-tunnel
     spec:
       hostNetwork: false
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: cloudflared-tunnel
       containers:
         - name: cloudflared-tunnel
           image: cloudflare/cloudflared:latest

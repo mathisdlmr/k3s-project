@@ -84,3 +84,12 @@
     k3s_server_token: "{{ k3s_server_node_token.content | b64decode | trim }}"
   when: k3s_server_cluster_init
   no_log: true
+
+- name: Run 2 CoreDNS replicas (k3s deploys only 1)
+  ansible.builtin.command: k3s kubectl -n kube-system scale deployment/coredns --replicas=2
+  register: k3s_server_coredns_scale
+  until: k3s_server_coredns_scale.rc == 0
+  retries: 30
+  delay: 10
+  changed_when: false
+  when: k3s_server_cluster_init

@@ -159,6 +159,13 @@ kube-state-metrics:
 alertmanager:
   enabled: true
   alertmanagerSpec:
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: longhorn
+          resources:
+            requests:
+              storage: 1Gi
     resources:
       requests:
         cpu: 10m
