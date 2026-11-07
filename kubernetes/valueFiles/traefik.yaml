@@ -17,7 +17,8 @@ ports:
       default: true
 
 service:
-  type: ClusterIP
+  spec:
+    type: ClusterIP
 
 tlsStore:
   default:
