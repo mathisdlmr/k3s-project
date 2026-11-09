@@ -19,6 +19,18 @@ kubeScheduler:
 kubeProxy:
   enabled: false # Replaced by Cilium
 
+# In k3s, all the control plane components and kubelet run in a single process.
+# Use metricsRelabeling to only keeps what kube-prometheus-stack dashboards and rules use with {job="kubelet"}
+kubelet:
+  serviceMonitor:
+    metricRelabelings:
+      - action: drop
+        sourceLabels: [__name__, le]
+        regex: (csi_operations|storage_operation_duration)_seconds_bucket;(0.25|2.5|15|25|120|600)(\.0)?
+      - action: keep
+        sourceLabels: [__name__]
+        regex: kubelet_.*|volume_manager_.*|storage_operation_.*|rest_client_request.*|process_.*|go_goroutines
+
 prometheus:
   prometheusSpec:
     replicas: 1
@@ -47,7 +59,6 @@ prometheus:
           resources:
             requests:
               storage: 30Gi
-    # ~3.1Gi peak; generous limit since an OOM-kill makes WAL replay need even more memory
     resources:
       requests:
         cpu: 150m
