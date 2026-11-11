@@ -45,6 +45,21 @@ configs:
         - .spec.dataFrom[]?.extract.decodingStrategy
         - .spec.dataFrom[]?.extract.metadataPolicy
         - .spec.dataFrom[]?.extract.nullBytePolicy
+    # On retire les EndpointSlice pour que ArgoCD puisse gérer les endpoints du 
+    # Service garage qui pointent vers l'extérieur du cluster
+    resource.exclusions: |
+      - apiGroups: [""]
+        kinds: [Endpoints]
+      - apiGroups: [coordination.k8s.io]
+        kinds: [Lease]
+      - apiGroups: [authentication.k8s.io, authorization.k8s.io]
+        kinds: [SelfSubjectReview, TokenReview, LocalSubjectAccessReview, SelfSubjectAccessReview, SelfSubjectRulesReview, SubjectAccessReview]
+      - apiGroups: [certificates.k8s.io]
+        kinds: [CertificateSigningRequest]
+      - apiGroups: [cert-manager.io]
+        kinds: [CertificateRequest]
+      - apiGroups: [cilium.io]
+        kinds: [CiliumIdentity, CiliumEndpoint, CiliumEndpointSlice]
   secret:
     argocdServerAdminPassword: "$2a$10$AwlgeUSbvqFeZ7VbSX27L.N2zuaazc0Kkpo9JYDOAOE1w2IoxoPSG"
     argocdServerAdminPasswordMtime: "2026-07-26T00:00:00Z"

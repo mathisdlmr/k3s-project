@@ -1,0 +1,29 @@
+---
+# Garage S3 API running on the TrueNAS
+# Reachable in-cluster at http://garage.infra.svc.cluster.local:3900
+apiVersion: v1
+kind: Service
+metadata:
+  name: garage
+  namespace: infra
+spec:
+  ports:
+    - name: s3
+      port: 3900
+      targetPort: 3900
+---
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: garage
+  namespace: infra
+  labels:
+    kubernetes.io/service-name: garage
+addressType: IPv4
+ports:
+  - name: s3
+    port: 3900
+    protocol: TCP
+endpoints:
+  - addresses:
+      - 100.84.36.52 # TrueNAS Tailscale IP
