@@ -11,6 +11,23 @@ Entries are grouped by day, newest first. Each entry uses the following labels, 
 
 ---
 
+## 11 11 2026 - TrueNAS storage
+
+### Added
+
+- Deploy csi-driver-nfs and an `nfs` StorageClass backed by the TrueNAS `k8s` dataset (`/mnt/tank/k8s`, over Tailscale), one subfolder per `<namespace>/<pvc>`
+- Expose the Garage S3 API running on the TrueNAS in-cluster as `garage.infra.svc.cluster.local:3900` (selectorless Service + EndpointSlice)
+
+### Changed
+
+- Move the media-server `media-data` volume to the `nfs` StorageClass
+
+### Removed
+
+- `longhorn-media` StorageClass
+
+---
+
 ## 02 10 2026 - Something secret ...
 
 ### Added
