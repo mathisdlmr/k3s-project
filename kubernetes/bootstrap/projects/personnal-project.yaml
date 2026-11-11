@@ -8,6 +8,7 @@ spec:
   sourceRepos:
     - https://github.com/mathisDlmr/k3s-project.git
     - git@github.com:mathisdlmr/media-server.git
+    - git@github.com:mathisdlmr/hermes-project.git
   destinations:
     - name: "*"
       namespace: argocd
@@ -20,5 +21,8 @@ spec:
       server: "*"
     - name: "*"
       namespace: media-server
+      server: "*"
+    - name: "*"
+      namespace: hermes
       server: "*"
   clusterResourceWhitelist: []
