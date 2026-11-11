@@ -1,0 +1,13 @@
+---
+# Applies to every volume of the "default" group (all volumes without an explicit recurring-job label)
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: daily-backup
+spec:
+  task: backup
+  cron: "0 3 * * *"
+  retain: 1 # once a new backup completes, Longhorn deletes the previous one of the same volume
+  concurrency: 1
+  groups:
+    - default
