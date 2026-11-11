@@ -1,0 +1,12 @@
+---
+storageClass:
+  create: true
+  name: nfs
+  parameters:
+    server: 100.84.36.52 # TrueNAS, reached through Tailscale
+    share: /mnt/tank/k8s
+    subDir: ${pvc.metadata.namespace}/${pvc.metadata.name}
+    onDelete: archive # keep the data (renamed archived-*) when a PVC is deleted
+  reclaimPolicy: Delete
+  volumeBindingMode: Immediate
+  allowVolumeExpansion: true
