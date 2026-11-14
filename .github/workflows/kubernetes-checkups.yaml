@@ -1,0 +1,19 @@
+# Run kubeconform
+
+# Run kube-linter
+
+# Run helm-lint ? In a separate workflow ?
+
+
+
+
+# Run Trivy ? Also for Ansible ?
+
+# Run Checkov ? Also for Ansible ?
+
+# Run conftest ? Also for Ansible ?
+
+
+
+
+# Put dependabot onto the repo ?
