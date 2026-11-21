@@ -11,20 +11,49 @@ Entries are grouped by day, newest first. Each entry uses the following labels, 
 
 ---
 
+## 12 11 2026 - Hermes Agent
+
+### Added
+
+- Deploy my own Hermes Agent inside the cluster
+
+---
+
 ## 11 11 2026 - TrueNAS storage
 
 ### Added
 
 - Deploy csi-driver-nfs and an `nfs` StorageClass backed by the TrueNAS `k8s` dataset (`/mnt/tank/k8s`, over Tailscale), one subfolder per `<namespace>/<pvc>`
 - Expose the Garage S3 API running on the TrueNAS in-cluster as `garage.infra.svc.cluster.local:3900` (selectorless Service + EndpointSlice)
+- Longhorn backup target on Garage (`s3://longhorn-backups@garage/`) and a cluster-wide `daily-backup` RecurringJob (03:00, `default` group, keeps only the latest backup per volume)
+    - Exclude the Prometheus, Loki and Elasticsearch volumes from backups (volume labels set by hand, `no-backup` group)
 
 ### Changed
 
-- Move the media-server `media-data` volume to the `nfs` StorageClass
+- Move the media-server `media-data` volume to the `nfs` StorageClass (to avoid 250Gi storage on a single control-plane node)
 
 ### Removed
 
 - `longhorn-media` StorageClass
+
+---
+
+## 03 11 2026 - Reduce Latency
+
+### Added
+
+- Reduce latency between nodes by connecting them all onto the same 2.5GbE switch
+
+---
+
+## 26 10 2026 - NFS server
+
+### Added
+
+- Create a TrueNAS server with 2\*1To HDD on RAIDZ0, and the OS running on 2\*500Go HDD (don't have SSD)
+- Add Tailscale to the TrueNAS
+- Expose a NFS storage on the NAS
+- Add Garage to the TrueNAS
 
 ---
 
